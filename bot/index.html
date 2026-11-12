@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Меняла — бот</title>
+<meta name="theme-color" content="#17212B">
+<link href="../vendor/fonts/fonts.css" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --page: #080C12;
+  --bg: #0E1621;
+  --head: #17212B;
+  --in: #182533;
+  --out: #2B5278;
+  --tx: #F2F5F8;
+  --sub: #6D7F8F;
+  --acc: #6AB3F3;
+  --btn: rgba(26, 40, 54, .88);
+  --btn-hi: rgba(40, 60, 80, .95);
+  --f: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--page); color: var(--tx); }
+body { font: 15px/1.38 var(--f); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+.page { display: flex; justify-content: center; align-items: flex-start; gap: 36px; min-height: 100%; padding: 28px 16px; }
+
+/* ───── левая колонка ───── */
+.side { width: 290px; position: sticky; top: 28px; }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.brand .ava { width: 46px; height: 46px; }
+.brand b { display: block; font: 700 16px/1.2 'Unbounded', var(--f); letter-spacing: .04em; }
+.brand small { display: block; margin-top: 3px; color: var(--sub); font-size: 13px; }
+nav { display: flex; flex-direction: column; gap: 2px; }
+nav button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 12px;
+  text-align: left; font-size: 14.5px; font-weight: 500; color: #C5D0DB;
+  transition: background .15s, color .15s;
+}
+nav button:hover { background: rgba(255,255,255,.04); }
+nav button.on { background: rgba(106,179,243,.14); color: #fff; }
+nav button i { font-style: normal; width: 22px; text-align: center; }
+.notes { margin-top: 18px; padding: 14px 14px 4px; border-radius: 14px; background: #0F1620; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+.notes h4 { margin: 0 0 8px; font-size: 13px; color: var(--acc); font-weight: 600; letter-spacing: .02em; }
+.notes p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: #9DAAB7; }
+
+/* ───── телефон ───── */
+.phone {
+  position: relative;
+  width: 400px; height: min(860px, calc(100vh - 56px)); min-height: 560px;
+  display: flex; flex-direction: column;
+  border-radius: 34px; overflow: hidden;
+  background: var(--bg);
+  box-shadow: 0 0 0 9px #05080C, 0 0 0 10px #1C2633, 0 40px 90px rgba(0,0,0,.65);
+  isolation: isolate;
+}
+.tg-head { flex: none; display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 14px 0 10px; background: var(--head); box-shadow: 0 1px 0 rgba(0,0,0,.35); z-index: 3; }
+.tg-head .back { width: 30px; text-align: center; font-size: 20px; color: #8D9DAD; }
+.tg-head .ava { width: 40px; height: 40px; }
+.tg-head .ttl { flex: 1; min-width: 0; }
+.tg-head .ttl b { display: block; font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tg-head .ttl small { display: block; font-size: 13px; color: var(--sub); }
+.tg-head .dots { font-size: 20px; color: #8D9DAD; }
+
+.ava { position: relative; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #4F8BFF, #1C49CC 55%, #0C2069); flex: none; }
+.ava i { width: 62%; height: 62%; border-radius: 30%; display: grid; place-items: center; background: linear-gradient(150deg, #DCE2EC, #8994A9 55%, #5D687F); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 6px rgba(0,0,0,.35); }
+.ava svg { width: 92%; height: 92%; }
+
+.chat {
+  position: relative; flex: 1; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.035' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='22' cy='24' r='9'/%3E%3Cpath d='M19 30V18h4.5a3.4 3.4 0 0 1 0 6.8H17M17 27.5h6'/%3E%3Ccircle cx='86' cy='70' r='10'/%3E%3Cpath d='M82 66h8M86 66v9'/%3E%3Cpath d='M40 92l6-8 6 8-6 4z'/%3E%3Cpath d='M92 18l4 6-4 6-4-6z'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(120% 80% at 50% 0%, #12202F, var(--bg) 70%);
+  scrollbar-width: thin; scrollbar-color: #2A3A4A transparent;
+}
+.feed { display: flex; flex-direction: column; gap: 6px; padding: 12px 10px 16px; min-height: 100%; justify-content: flex-end; }
+.feed.top { justify-content: flex-start; }
+
+/* сообщения */
+.msg { display: flex; }
+.msg.out { justify-content: flex-end; }
+.wrap { max-width: 88%; display: flex; flex-direction: column; gap: 4px; }
+.wrap.haskb { width: 88%; }
+.bub { position: relative; padding: 7px 10px 6px 11px; border-radius: 15px 15px 15px 5px; background: var(--in); box-shadow: 0 1px 1px rgba(0,0,0,.25); }
+.out .bub { background: var(--out); border-radius: 15px 15px 5px 15px; }
+.txt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.txt b { font-weight: 650; }
+.txt i { font-style: italic; color: #DCE6EF; }
+.txt code { font: 500 13.5px/1.3 var(--mono); color: #8CC6F8; cursor: pointer; }
+.txt blockquote {
+  position: relative; display: block;
+  margin: 2px 0; padding: 3px 24px 4px 10px;
+  border-left: 3px solid var(--acc); border-radius: 5px;
+  background: rgba(106, 179, 243, .1);
+}
+.txt blockquote::after { content: '”'; position: absolute; top: 1px; right: 7px; color: var(--acc); font: 700 22px/1 Georgia, serif; }
+.txt blockquote.exp { max-height: calc(1.38em * 3 + 8px); overflow: hidden; cursor: pointer; -webkit-mask: linear-gradient(#000 55%, transparent); mask: linear-gradient(#000 55%, transparent); }
+.txt blockquote.exp.open { max-height: none; -webkit-mask: none; mask: none; }
+.txt blockquote.exp:not(.open)::before { content: 'ещё ⌄'; position: absolute; right: 8px; bottom: 2px; font-size: 12px; color: var(--acc); }
+.pre { margin: 2px 0; border-left: 3px solid var(--acc); border-radius: 6px; background: rgba(0, 0, 0, .22); overflow: hidden; }
+.pre-h { display: flex; justify-content: space-between; padding: 5px 10px 0; font-size: 12.5px; font-weight: 600; color: var(--acc); }
+.pre-copy { cursor: pointer; font-weight: 500; opacity: .85; }
+.pre pre { margin: 0; padding: 4px 10px 8px; font: 500 12.4px/1.5 var(--mono); color: #DCE5EE; white-space: pre; overflow-x: auto; }
+.spoiler { border-radius: 4px; color: transparent; cursor: pointer; background: #3B4A5C radial-gradient(circle, rgba(255,255,255,.55) .6px, transparent 1.1px) 0 0 / 4px 4px; animation: dust 1.4s linear infinite; }
+.spoiler * { color: transparent !important; }
+.spoiler.open { color: inherit; background: none; animation: none; }
+.spoiler.open * { color: inherit !important; }
+@keyframes dust { to { background-position: 4px -4px; } }
+.meta { float: right; position: relative; top: 5px; margin-left: 12px; font-size: 12px; line-height: 1.6; color: var(--sub); white-space: nowrap; }
+.out .meta { color: #86ADD3; }
+.meta .eff { font-style: normal; margin-right: 4px; }
+.msg.flash .bub { animation: flash .5s ease-out; }
+@keyframes flash { from { box-shadow: 0 0 0 2px rgba(106,179,243,.45); } }
+.msg.new { animation: pop .28s cubic-bezier(.2,.8,.2,1.2); }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* инлайн-кнопки */
+.kb { display: flex; flex-direction: column; gap: 4px; }
+.kb-row { display: flex; gap: 4px; }
+.kb button {
+  position: relative; flex: 1 1 0; min-width: 0;
+  padding: 9px 14px; border-radius: 11px;
+  background: var(--btn);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font-size: 14px; font-weight: 600; line-height: 1.2; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background .15s, scale .12s;
+}
+.kb button:hover { background: var(--btn-hi); }
+.kb button:active { scale: .97; }
+.kb button .ic { position: absolute; top: 3px; right: 5px; font-size: 10px; line-height: 1; opacity: .75; }
+
+.svc { align-self: center; margin: 8px 0 4px; padding: 4px 11px; border-radius: 13px; background: rgba(0, 0, 0, .32); font-size: 13px; font-weight: 500; color: #DCE5EE; }
+.tip { align-self: center; max-width: 86%; padding: 9px 14px; border-radius: 12px; background: rgba(10, 14, 20, .86); font-size: 14px; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.tip small { display: block; margin-bottom: 2px; font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: .08em; }
+
+/* «что умеет этот бот» */
+.empty { position: absolute; inset: 0; display: none; place-items: center; padding: 20px; }
+.empty.on { display: grid; }
+.card { width: 100%; max-width: 330px; border-radius: 16px; overflow: hidden; background: rgba(24, 37, 51, .92); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.card-pic { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: radial-gradient(80% 110% at 50% 40%, #3F7EFF, #1C49CC 35%, #0C2069 70%, #06102E); }
+.card-pic .m { position: absolute; left: 50%; top: 10%; width: 40%; translate: -50% 0; }
+.card-pic .m svg { width: 100%; height: auto; overflow: visible; }
+.card-t { padding: 12px 14px 14px; }
+.card-t b { display: block; margin-bottom: 6px; font-size: 15px; }
+.card-t p { margin: 0; white-space: pre-wrap; font-size: 14.5px; line-height: 1.42; color: #DCE5EE; }
+
+/* профиль бота */
+.profile { position: absolute; inset: 0; display: none; overflow-y: auto; padding: 22px 14px 30px; background: var(--bg); }
+.profile.on { display: block; }
+.pf-top { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 18px; }
+.pf-top .ava { width: 96px; height: 96px; margin-bottom: 12px; }
+.pf-top b { font-size: 20px; font-weight: 600; }
+.pf-top span { margin-top: 2px; font-size: 14px; color: var(--sub); }
+.pf-h { margin: 18px 6px 6px; font-size: 13.5px; font-weight: 600; color: var(--acc); }
+.pf-card { border-radius: 14px; background: var(--in); padding: 4px 14px; }
+.pf-row { padding: 9px 0; font-size: 14.5px; }
+.pf-row + .pf-row { border-top: 1px solid rgba(255,255,255,.06); }
+.pf-row small { display: block; font-size: 12.5px; color: var(--sub); margin-top: 2px; }
+.pf-row code { font: 500 13.5px var(--mono); color: #8CC6F8; }
+.pf-card p { margin: 8px 0; white-space: pre-wrap; font-size: 14.5px; line-height: 1.42; }
+
+/* низ: подсказки, команды, ввод */
+.chips { flex: none; display: none; gap: 6px; overflow-x: auto; padding: 7px 10px; background: rgba(14, 22, 33, .96); border-top: 1px solid rgba(255,255,255,.04); scrollbar-width: none; }
+.chips.on { display: flex; }
+.chips::before { content: 'напиши за пользователя'; flex: none; align-self: center; font-size: 11.5px; color: var(--sub); margin-right: 2px; }
+.chips button { flex: none; max-width: 240px; padding: 6px 12px; border-radius: 14px; background: rgba(106,179,243,.14); color: var(--acc); font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmds { position: absolute; left: 8px; right: 8px; bottom: 64px; z-index: 6; display: none; border-radius: 14px; overflow: hidden; background: #1A2633; box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+.cmds.on { display: block; }
+.cmds button { display: flex; gap: 10px; align-items: baseline; width: 100%; padding: 10px 14px; text-align: left; font-size: 14.5px; }
+.cmds button:hover { background: rgba(255,255,255,.04); }
+.cmds button b { color: var(--acc); font-weight: 600; }
+.cmds button span { color: #AEBBC8; }
+.bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--head); z-index: 3; }
+.menu-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 10px; background: #3B82D6; color: #fff; font-size: 14px; font-weight: 600; }
+.bar input { flex: 1; min-width: 0; height: 38px; padding: 0 4px; border: 0; outline: 0; background: none; color: var(--tx); font: 15px var(--f); }
+.bar input::placeholder { color: var(--sub); }
+.slash { flex: none; width: 30px; height: 30px; border-radius: 8px; box-shadow: inset 0 0 0 1.6px #6D7F8F; color: #8D9DAD; font: 600 16px/1 var(--mono); }
+.send { flex: none; width: 34px; height: 34px; border-radius: 50%; color: var(--acc); font-size: 20px; }
+.startbar { flex: none; display: none; height: 56px; background: var(--head); color: var(--acc); font-size: 15px; font-weight: 700; letter-spacing: .08em; z-index: 3; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.startbar.on { display: block; }
+.bar.off { display: none; }
+
+.toast { position: absolute; left: 50%; top: 76px; z-index: 9; max-width: 82%; padding: 10px 16px; border-radius: 12px; background: rgba(8, 12, 18, .9); font-size: 14px; text-align: center; translate: -50% -8px; opacity: 0; pointer-events: none; transition: opacity .2s, translate .25s; }
+.toast.on { opacity: 1; translate: -50% 0; }
+.fxl { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; }
+.fxl span { position: absolute; font-size: 22px; line-height: 1; will-change: transform, opacity; }
+
+/* шторка мини-аппа / шаринга */
+.sheet { position: absolute; inset: 0; z-index: 10; display: none; }
+.sheet.on { display: block; }
+.sheet-dim { position: absolute; inset: 0; background: rgba(0,0,0,.5); animation: fade .25s; }
+.sheet-panel { position: absolute; left: 0; right: 0; bottom: 0; height: 93%; display: flex; flex-direction: column; border-radius: 16px 16px 0 0; overflow: hidden; background: #05070C; animation: up .35s cubic-bezier(.2,.8,.2,1); }
+.sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; height: 50px; padding: 0 14px; background: var(--head); font-size: 15px; }
+.sheet-head button { color: var(--acc); font-size: 15px; }
+.sheet-head span { width: 60px; text-align: right; color: var(--sub); }
+.sheet-body { flex: 1; min-height: 0; position: relative; }
+.sheet-body iframe { width: 100%; height: 100%; border: 0; display: block; }
+.share { height: 100%; overflow-y: auto; padding: 14px 10px; background: var(--bg); }
+.share .lbl { margin: 0 6px 10px; font-size: 13.5px; color: #AEBBC8; }
+.share .via { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600; color: #8CC6F8; }
+.fake-input { display: flex; gap: 6px; margin: 16px 4px 0; padding: 10px 12px; border-radius: 12px; background: var(--head); font-size: 14.5px; }
+.fake-input b { color: var(--acc); font-weight: 600; }
+.fake-input span { color: var(--sub); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(100%); } }
+
+@media (max-width: 860px) {
+  .page { display: block; padding: 0; }
+  .side { position: sticky; top: 0; z-index: 20; width: auto; padding: 8px 0; background: #0B1118; box-shadow: 0 1px 0 rgba(255,255,255,.05); }
+  .brand, .notes { display: none; }
+  nav { flex-direction: row; overflow-x: auto; gap: 6px; padding: 0 12px; scrollbar-width: none; }
+  nav button { flex: none; padding: 7px 12px; border-radius: 16px; background: rgba(255,255,255,.04); font-size: 13.5px; white-space: nowrap; }
+  .phone { width: auto; height: calc(100dvh - 52px); min-height: 0; border-radius: 0; box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) { .msg.new, .spoiler, .sheet-panel, .sheet-dim { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="side">
+    <div class="brand"><span class="ava" data-ava></span><div><b>МЕНЯЛА · БОТ</b><small>все тексты и сценарии</small></div></div>
+    <nav id="nav" aria-label="Сценарии"></nav>
+    <div class="notes">
+      <h4>Как читать превью</h4>
+      <p>Кнопки под сообщениями нажимаются. Синие подсказки над полем ввода — то, что напишет пользователь. «/» — меню команд, «Сейф» — мини-апп.</p>
+      <h4>Правила текста</h4>
+      <p>Эмодзи — маркер смысла: одно на строку, без гирлянд. Деньги — жирным, детали — деревом ├ └, чек — моноширинным блоком.</p>
+      <p>Меняла шутит последней строкой курсивом. Где у человека не дошли деньги — без шуток.</p>
+      <p>Меню редактирует одно сообщение. Новые — только чеки и уведомления. Суммы друзей не показываем — только статус сотки.</p>
+    </div>
+  </aside>
+
+  <main class="phone" id="phone">
+    <header class="tg-head">
+      <span class="back" aria-hidden="true">←</span>
+      <span class="ava" data-ava></span>
+      <div class="ttl"><b id="botName">Меняла</b><small>бот</small></div>
+      <span class="dots" aria-hidden="true">⋮</span>
+    </header>
+    <div class="chat" id="chat">
+      <div class="feed" id="feed"></div>
+      <div class="empty" id="empty">
+        <div class="card"><div class="card-pic"><div class="m" id="descM"></div></div><div class="card-t"><b>Что умеет этот бот?</b><p id="descText"></p></div></div>
+      </div>
+      <div class="profile" id="profile"></div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="cmds" id="cmds"></div>
+    <footer class="bar" id="bar">
+      <button class="menu-btn" id="menuBtn">☰ <span id="menuName">Сейф</span></button>
+      <input id="inp" placeholder="Сообщение" autocomplete="off" aria-label="Сообщение боту">
+      <button class="slash" id="slash" aria-label="Команды">/</button>
+      <button class="send" id="send" aria-label="Отправить">➤</button>
+    </footer>
+    <button class="startbar" id="startBtn">СТАРТ</button>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="fxl" id="fxl"></div>
+    <div class="sheet" id="sheet">
+      <div class="sheet-dim" id="sheetDim"></div>
+      <div class="sheet-panel">
+        <div class="sheet-head"><button id="sheetX">✕ Закрыть</button><b id="sheetTitle">Меняла</b><span>⋯</span></div>
+        <div class="sheet-body" id="sheetBody"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../vendor/gsap.min.js"></script>
+<script id="data" type="application/json">{"s": {"welcome": {"text": "🔐 <b>Меняла на связи<\/b>\n\nДима, привет. Я сейф: с глазом, золотым зубом и рублями внутри. Меняю крипту на рубли и обратно — быстро и без цирка.\n\n<blockquote>💱 ₽ ↔ USDT · TON · BTC · ETH\n⏱ курс держу 60 секунд\n⚡️ пополнение и вывод по СБП\n🎁 100 ₽ за каждого друга<\/blockquote>\n\n🤝 Тебя позвал <b>Вася<\/b>. Он скажет спасибо.\n\nС чего начнём?", "kb": [[{"t": "🔐 Открыть Менялу", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/"}], [{"t": "💱 Обменять", "cb": "x"}, {"t": "📈 Курсы", "cb": "rates"}], [{"t": "📥 Пополнить", "cb": "dep"}, {"t": "🎁 +100 ₽ за друга", "cb": "ref"}]], "effect": ""}, "menu_00": {"text": "🔐 <b>Меняла<\/b> · сейф открыт\n\n💰 Всего <b>199 212,58 ₽<\/b>\n├ 164 250,00 ₽\n├ 💵 312,35 USDT · ≈ 30 142 ₽\n└ 💎 18,40 TON · ≈ 4 821 ₽\n\n📈 USDT <b>96,50 ₽<\/b> · TON <b>262,00 ₽<\/b>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "📈 Курсы", "cb": "rates"}], [{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "🧾 История", "cb": "hist:1"}, {"t": "🎁 +100 ₽ за друга", "cb": "ref"}], [{"t": "🔐 Открыть Менялу", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/"}], [{"t": "⚙️ Настройки", "cb": "set"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "menu_01": {"text": "🔐 <b>Меняла<\/b> · сейф открыт\n\n💰 Всего <b>199 212,58 ₽<\/b>\n├ 164 250,00 ₽\n├ 💵 312,35 USDT · ≈ 30 142 ₽\n└ 💎 18,40 TON · ≈ 4 821 ₽\n\n📈 USDT <b>96,50 ₽<\/b> · TON <b>262,00 ₽<\/b>\n\n<i>Работаю без обеда. Ем только купюры.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "📈 Курсы", "cb": "rates"}], [{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "🧾 История", "cb": "hist:1"}, {"t": "🎁 +100 ₽ за друга", "cb": "ref"}], [{"t": "🔐 Открыть Менялу", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/"}], [{"t": "⚙️ Настройки", "cb": "set"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "menu_10": {"text": "🔐 <b>Меняла<\/b> · сейф открыт\n\n💰 Всего <tg-spoiler><b>199 212,58 ₽<\/b><\/tg-spoiler>\n├ <tg-spoiler>164 250,00 ₽<\/tg-spoiler>\n├ 💵 <tg-spoiler>312,35 USDT<\/tg-spoiler><tg-spoiler> · ≈ 30 142 ₽<\/tg-spoiler>\n└ 💎 <tg-spoiler>18,40 TON<\/tg-spoiler><tg-spoiler> · ≈ 4 821 ₽<\/tg-spoiler>\n\n📈 USDT <b>96,50 ₽<\/b> · TON <b>262,00 ₽<\/b>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "📈 Курсы", "cb": "rates"}], [{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "🧾 История", "cb": "hist:1"}, {"t": "🎁 +100 ₽ за друга", "cb": "ref"}], [{"t": "🔐 Открыть Менялу", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/"}], [{"t": "⚙️ Настройки", "cb": "set"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "menu_11": {"text": "🔐 <b>Меняла<\/b> · сейф открыт\n\n💰 Всего <tg-spoiler><b>199 212,58 ₽<\/b><\/tg-spoiler>\n├ <tg-spoiler>164 250,00 ₽<\/tg-spoiler>\n├ 💵 <tg-spoiler>312,35 USDT<\/tg-spoiler><tg-spoiler> · ≈ 30 142 ₽<\/tg-spoiler>\n└ 💎 <tg-spoiler>18,40 TON<\/tg-spoiler><tg-spoiler> · ≈ 4 821 ₽<\/tg-spoiler>\n\n📈 USDT <b>96,50 ₽<\/b> · TON <b>262,00 ₽<\/b>\n\n<i>Сейфы не спят. Мы моргаем.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "📈 Курсы", "cb": "rates"}], [{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "🧾 История", "cb": "hist:1"}, {"t": "🎁 +100 ₽ за друга", "cb": "ref"}], [{"t": "🔐 Открыть Менялу", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/"}], [{"t": "⚙️ Настройки", "cb": "set"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "rates": {"text": "📈 <b>Курсы Менялы<\/b> · 08:24 МСК\n\n<pre><code class=\"language-табло\">₽       ПОКУПАЕМ    ПРОДАЁМ\nUSDT       95,82      97,18\nTON       260,17     263,83\nBTC    9 119 911  9 248 489\nETH      316 221    320 679<\/code><\/pre>\n⏱ В сделке курс фиксирую на 60 секунд.\n\n<i>Цифры не врут. Я тоже.<\/i>", "kb": [[{"t": "🔄 Обновить", "cb": "rates:r"}, {"t": "🔔 Следить", "cb": "alert"}], [{"t": "💵 Купить USDT", "cb": "x:b:usdt"}, {"t": "💵 Продать USDT", "cb": "x:s:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "rates2": {"text": "📈 <b>Курсы Менялы<\/b> · 08:25 МСК\n\n<pre><code class=\"language-табло\">₽       ПОКУПАЕМ    ПРОДАЁМ\nUSDT       95,94      97,30\nTON       259,57     263,23\nBTC    9 126 067  9 254 733\nETH      315 893    320 347<\/code><\/pre>\n⏱ В сделке курс фиксирую на 60 секунд.\n\n<i>Цифры не врут. Я тоже.<\/i>", "kb": [[{"t": "🔄 Обновить", "cb": "rates:r"}, {"t": "🔔 Следить", "cb": "alert"}], [{"t": "💵 Купить USDT", "cb": "x:b:usdt"}, {"t": "💵 Продать USDT", "cb": "x:s:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "alert_ask": {"text": "🔔 <b>Следить за курсом<\/b>\n\nНапиши монету и цену — пришлю сообщение, когда курс до неё дойдёт.\n\n<blockquote>Например: <code>USDT 95<\/code> или <code>TON 280<\/code><\/blockquote>\nСейчас: USDT <b>96,50 ₽<\/b> · TON <b>262,00 ₽<\/b>", "kb": [[{"t": "↩️ Курсы", "cb": "rates"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "alert_set": {"text": "🔔 <b>Слежу<\/b>\n\nНапишу, как только USDT опустится до <b>95,00 ₽<\/b>.\nСейчас — 96,50 ₽.\n\n<i>Глаз не сомкну. У меня он один, но надёжный.<\/i>", "kb": [[{"t": "🗑 Убрать", "cb": "alert:del:usdt"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "alert_set_ton": {"text": "🔔 <b>Слежу<\/b>\n\nНапишу, как только TON поднимется до <b>280,00 ₽<\/b>.\nСейчас — 262,00 ₽.\n\n<i>Глаз не сомкну. У меня он один, но надёжный.<\/i>", "kb": [[{"t": "🗑 Убрать", "cb": "alert:del:ton"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "ex_give": {"text": "💱 <b>Обмен<\/b>\n\nЧто отдаёшь?", "kb": [[{"t": "₽ Рубли", "cb": "x:g:rub"}, {"t": "💵 USDT", "cb": "x:g:usdt"}], [{"t": "💎 TON", "cb": "x:g:ton"}, {"t": "🟠 Bitcoin", "cb": "x:g:btc"}, {"t": "🔷 Ethereum", "cb": "x:g:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "ex_get_rub": {"text": "💱 <b>Обмен<\/b>\n\nОтдаёшь ₽ <b>Рубли<\/b>. Что получаешь?", "kb": [[{"t": "💵 USDT", "cb": "x:o:rub:usdt"}, {"t": "💎 TON", "cb": "x:o:rub:ton"}], [{"t": "🟠 Bitcoin", "cb": "x:o:rub:btc"}, {"t": "🔷 Ethereum", "cb": "x:o:rub:eth"}], [{"t": "↩️ Назад", "cb": "x"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "ex_get_usdt": {"text": "💱 <b>Обмен<\/b>\n\nОтдаёшь 💵 <b>USDT<\/b>. Что получаешь?", "kb": [[{"t": "₽ Рубли", "cb": "x:o:usdt:rub"}, {"t": "💎 TON", "cb": "x:o:usdt:ton"}], [{"t": "🟠 Bitcoin", "cb": "x:o:usdt:btc"}, {"t": "🔷 Ethereum", "cb": "x:o:usdt:eth"}], [{"t": "↩️ Назад", "cb": "x"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "ex_get_ton": {"text": "💱 <b>Обмен<\/b>\n\nОтдаёшь 💎 <b>TON<\/b>. Что получаешь?", "kb": [[{"t": "₽ Рубли", "cb": "x:o:ton:rub"}, {"t": "💵 USDT", "cb": "x:o:ton:usdt"}], [{"t": "🟠 Bitcoin", "cb": "x:o:ton:btc"}, {"t": "🔷 Ethereum", "cb": "x:o:ton:eth"}], [{"t": "↩️ Назад", "cb": "x"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "ex_amount_rub_usdt": {"text": "💱 <b>₽ RUB → 💵 USDT<\/b>\n\nСколько отдаёшь? Напиши сумму в рублях одним сообщением.\n\n├ баланс: <b>164 250,00 ₽<\/b>\n├ курс: 1 USDT ≈ 96,50 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "1 000", "cb": "x:a:1000"}, {"t": "5 000", "cb": "x:a:5000"}, {"t": "10 000", "cb": "x:a:10000"}], [{"t": "Всё · 164 250,00 ₽", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:rub"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_rubusdt1000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>1 000,00 ₽<\/b>\nПолучаешь 💵 <b>10,31 USDT<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 5,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubusdt1000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubusdt1000": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+10,31 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48421 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           1 000,00 RUB\nПОЛУЧИЛ           10,31 USDT\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ            5,00 RUB\n────────────────────────────\nИТОГО            +10,31 USDT<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubusdt1000": {"text": "🔒 <b>Сделка № 48421 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubusdt5000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>5 000,00 ₽<\/b>\nПолучаешь 💵 <b>51,55 USDT<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 25,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubusdt5000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubusdt5000": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+51,55 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48422 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           5 000,00 RUB\nПОЛУЧИЛ           51,55 USDT\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           25,00 RUB\n────────────────────────────\nИТОГО            +51,55 USDT<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubusdt5000": {"text": "🔒 <b>Сделка № 48422 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubusdt10000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>10 000,00 ₽<\/b>\nПолучаешь 💵 <b>103,11 USDT<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 50,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubusdt10000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubusdt10000": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+103,11 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48423 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ          10 000,00 RUB\nПОЛУЧИЛ          103,11 USDT\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           50,00 RUB\n────────────────────────────\nИТОГО           +103,11 USDT<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubusdt10000": {"text": "🔒 <b>Сделка № 48423 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubusdt164250": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>164 250,00 ₽<\/b>\nПолучаешь 💵 <b>1 693,56 USDT<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 821,25 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubusdt164250"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubusdt164250": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+1 693,56 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48424 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ         164 250,00 RUB\nПОЛУЧИЛ        1 693,56 USDT\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ          821,25 RUB\n────────────────────────────\nИТОГО         +1 693,56 USDT<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubusdt164250": {"text": "🔒 <b>Сделка № 48424 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_rub_ton": {"text": "💱 <b>₽ RUB → 💎 TON<\/b>\n\nСколько отдаёшь? Напиши сумму в рублях одним сообщением.\n\n├ баланс: <b>164 250,00 ₽<\/b>\n├ курс: 1 TON ≈ 262,00 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "1 000", "cb": "x:a:1000"}, {"t": "5 000", "cb": "x:a:5000"}, {"t": "10 000", "cb": "x:a:10000"}], [{"t": "Всё · 164 250,00 ₽", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:rub"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_rubton1000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>1 000,00 ₽<\/b>\nПолучаешь 💎 <b>3,80 TON<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 5,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubton1000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubton1000": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+3,80 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48425 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           1 000,00 RUB\nПОЛУЧИЛ             3,80 TON\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ            5,00 RUB\n────────────────────────────\nИТОГО              +3,80 TON<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubton1000": {"text": "🔒 <b>Сделка № 48425 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubton5000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>5 000,00 ₽<\/b>\nПолучаешь 💎 <b>18,99 TON<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 25,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubton5000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubton5000": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+18,99 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48426 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           5 000,00 RUB\nПОЛУЧИЛ            18,99 TON\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ           25,00 RUB\n────────────────────────────\nИТОГО             +18,99 TON<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubton5000": {"text": "🔒 <b>Сделка № 48426 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubton10000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>10 000,00 ₽<\/b>\nПолучаешь 💎 <b>37,98 TON<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 50,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubton10000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubton10000": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+37,98 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48427 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ          10 000,00 RUB\nПОЛУЧИЛ            37,98 TON\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ           50,00 RUB\n────────────────────────────\nИТОГО             +37,98 TON<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubton10000": {"text": "🔒 <b>Сделка № 48427 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubton164250": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>164 250,00 ₽<\/b>\nПолучаешь 💎 <b>623,77 TON<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 821,25 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubton164250"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubton164250": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+623,77 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48428 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ         164 250,00 RUB\nПОЛУЧИЛ           623,77 TON\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ          821,25 RUB\n────────────────────────────\nИТОГО            +623,77 TON<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubton164250": {"text": "🔒 <b>Сделка № 48428 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_rub_btc": {"text": "💱 <b>₽ RUB → 🟠 BTC<\/b>\n\nСколько отдаёшь? Напиши сумму в рублях одним сообщением.\n\n├ баланс: <b>164 250,00 ₽<\/b>\n├ курс: 1 BTC ≈ 9 184 200,00 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "1 000", "cb": "x:a:1000"}, {"t": "5 000", "cb": "x:a:5000"}, {"t": "10 000", "cb": "x:a:10000"}], [{"t": "Всё · 164 250,00 ₽", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:rub"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_rubbtc1000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>1 000,00 ₽<\/b>\nПолучаешь 🟠 <b>0,000108 BTC<\/b>\n\n├ курс: 1 BTC ≈ 9 184 200,00 ₽\n├ комиссия: 0,5% · 5,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubbtc1000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubbtc1000": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000108 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48429 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           1 000,00 RUB\nПОЛУЧИЛ         0,000108 BTC\nКУРС  1 BTC = 9 184 200,00 ₽\nКОМИССИЯ            5,00 RUB\n────────────────────────────\nИТОГО          +0,000108 BTC<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubbtc1000": {"text": "🔒 <b>Сделка № 48429 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubbtc5000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>5 000,00 ₽<\/b>\nПолучаешь 🟠 <b>0,000542 BTC<\/b>\n\n├ курс: 1 BTC ≈ 9 184 200,00 ₽\n├ комиссия: 0,5% · 25,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubbtc5000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubbtc5000": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000542 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48430 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           5 000,00 RUB\nПОЛУЧИЛ         0,000542 BTC\nКУРС  1 BTC = 9 184 200,00 ₽\nКОМИССИЯ           25,00 RUB\n────────────────────────────\nИТОГО          +0,000542 BTC<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubbtc5000": {"text": "🔒 <b>Сделка № 48430 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubbtc10000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>10 000,00 ₽<\/b>\nПолучаешь 🟠 <b>0,001083 BTC<\/b>\n\n├ курс: 1 BTC ≈ 9 184 200,00 ₽\n├ комиссия: 0,5% · 50,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubbtc10000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubbtc10000": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,001083 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48431 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ          10 000,00 RUB\nПОЛУЧИЛ         0,001083 BTC\nКУРС  1 BTC = 9 184 200,00 ₽\nКОМИССИЯ           50,00 RUB\n────────────────────────────\nИТОГО          +0,001083 BTC<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubbtc10000": {"text": "🔒 <b>Сделка № 48431 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubbtc164250": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>164 250,00 ₽<\/b>\nПолучаешь 🟠 <b>0,017795 BTC<\/b>\n\n├ курс: 1 BTC ≈ 9 184 200,00 ₽\n├ комиссия: 0,5% · 821,25 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubbtc164250"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubbtc164250": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,017795 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48432 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ         164 250,00 RUB\nПОЛУЧИЛ         0,017795 BTC\nКУРС  1 BTC = 9 184 200,00 ₽\nКОМИССИЯ          821,25 RUB\n────────────────────────────\nИТОГО          +0,017795 BTC<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubbtc164250": {"text": "🔒 <b>Сделка № 48432 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_rub_eth": {"text": "💱 <b>₽ RUB → 🔷 ETH<\/b>\n\nСколько отдаёшь? Напиши сумму в рублях одним сообщением.\n\n├ баланс: <b>164 250,00 ₽<\/b>\n├ курс: 1 ETH ≈ 318 450,00 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "1 000", "cb": "x:a:1000"}, {"t": "5 000", "cb": "x:a:5000"}, {"t": "10 000", "cb": "x:a:10000"}], [{"t": "Всё · 164 250,00 ₽", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:rub"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_rubeth1000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>1 000,00 ₽<\/b>\nПолучаешь 🔷 <b>0,00312 ETH<\/b>\n\n├ курс: 1 ETH ≈ 318 450,00 ₽\n├ комиссия: 0,5% · 5,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubeth1000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubeth1000": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,00312 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48433 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           1 000,00 RUB\nПОЛУЧИЛ          0,00312 ETH\nКУРС    1 ETH = 318 450,00 ₽\nКОМИССИЯ            5,00 RUB\n────────────────────────────\nИТОГО           +0,00312 ETH<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubeth1000": {"text": "🔒 <b>Сделка № 48433 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubeth5000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>5 000,00 ₽<\/b>\nПолучаешь 🔷 <b>0,01562 ETH<\/b>\n\n├ курс: 1 ETH ≈ 318 450,00 ₽\n├ комиссия: 0,5% · 25,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubeth5000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubeth5000": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,01562 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48434 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ           5 000,00 RUB\nПОЛУЧИЛ          0,01562 ETH\nКУРС    1 ETH = 318 450,00 ₽\nКОМИССИЯ           25,00 RUB\n────────────────────────────\nИТОГО           +0,01562 ETH<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubeth5000": {"text": "🔒 <b>Сделка № 48434 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubeth10000": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>10 000,00 ₽<\/b>\nПолучаешь 🔷 <b>0,03125 ETH<\/b>\n\n├ курс: 1 ETH ≈ 318 450,00 ₽\n├ комиссия: 0,5% · 50,00 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubeth10000"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubeth10000": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,03125 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48435 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ          10 000,00 RUB\nПОЛУЧИЛ          0,03125 ETH\nКУРС    1 ETH = 318 450,00 ₽\nКОМИССИЯ           50,00 RUB\n────────────────────────────\nИТОГО           +0,03125 ETH<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubeth10000": {"text": "🔒 <b>Сделка № 48435 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_rubeth164250": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь <b>164 250,00 ₽<\/b>\nПолучаешь 🔷 <b>0,5132 ETH<\/b>\n\n├ курс: 1 ETH ≈ 318 450,00 ₽\n├ комиссия: 0,5% · 821,25 ₽\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:rubeth164250"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubeth164250": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,5132 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48436 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ         164 250,00 RUB\nПОЛУЧИЛ           0,5132 ETH\nКУРС    1 ETH = 318 450,00 ₽\nКОМИССИЯ          821,25 RUB\n────────────────────────────\nИТОГО            +0,5132 ETH<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubeth164250": {"text": "🔒 <b>Сделка № 48436 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_usdt_rub": {"text": "💱 <b>💵 USDT → ₽ RUB<\/b>\n\nСколько отдаёшь? Напиши сумму в USDT одним сообщением.\n\n├ баланс: <b>312,35 USDT<\/b>\n├ курс: 1 USDT ≈ 96,50 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 312,35 USDT", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:usdt"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_usdtrub78": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>78,09 USDT<\/b>\nПолучаешь <b>7 498,01 ₽<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 0,39 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtrub78"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtrub78": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+7 498,01 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48437 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ             78,09 USDT\nПОЛУЧИЛ           7 498,01 ₽\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           0,39 USDT\n────────────────────────────\nИТОГО            +7 498,01 ₽<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtrub78": {"text": "🔒 <b>Сделка № 48437 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtrub156": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>156,18 USDT<\/b>\nПолучаешь <b>14 996,01 ₽<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 0,78 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtrub156"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtrub156": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+14 996,01 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48438 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            156,18 USDT\nПОЛУЧИЛ          14 996,01 ₽\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           0,78 USDT\n────────────────────────────\nИТОГО           +14 996,01 ₽<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtrub156": {"text": "🔒 <b>Сделка № 48438 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtrub234": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>234,26 USDT<\/b>\nПолучаешь <b>22 493,06 ₽<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 1,17 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtrub234"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtrub234": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+22 493,06 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48439 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            234,26 USDT\nПОЛУЧИЛ          22 493,06 ₽\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           1,17 USDT\n────────────────────────────\nИТОГО           +22 493,06 ₽<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtrub234": {"text": "🔒 <b>Сделка № 48439 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtrub312": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>312,35 USDT<\/b>\nПолучаешь <b>29 991,07 ₽<\/b>\n\n├ курс: 1 USDT ≈ 96,50 ₽\n├ комиссия: 0,5% · 1,56 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtrub312"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtrub312": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+29 991,07 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48440 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            312,35 USDT\nПОЛУЧИЛ          29 991,07 ₽\nКУРС        1 USDT = 96,50 ₽\nКОМИССИЯ           1,56 USDT\n────────────────────────────\nИТОГО           +29 991,07 ₽<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtrub312": {"text": "🔒 <b>Сделка № 48440 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_ton_rub": {"text": "💱 <b>💎 TON → ₽ RUB<\/b>\n\nСколько отдаёшь? Напиши сумму в TON одним сообщением.\n\n├ баланс: <b>18,40 TON<\/b>\n├ курс: 1 TON ≈ 262,00 ₽\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 18,40 TON", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:ton"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_tonrub4": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>4,60 TON<\/b>\nПолучаешь <b>1 199,17 ₽<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 0,02 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonrub4"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonrub4": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+1 199,17 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48441 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               4,60 TON\nПОЛУЧИЛ           1 199,17 ₽\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ            0,02 TON\n────────────────────────────\nИТОГО            +1 199,17 ₽<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonrub4": {"text": "🔒 <b>Сделка № 48441 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonrub9": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>9,20 TON<\/b>\nПолучаешь <b>2 398,35 ₽<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 0,05 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonrub9"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonrub9": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+2 398,35 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48442 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               9,20 TON\nПОЛУЧИЛ           2 398,35 ₽\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ            0,05 TON\n────────────────────────────\nИТОГО            +2 398,35 ₽<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonrub9": {"text": "🔒 <b>Сделка № 48442 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonrub13": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>13,80 TON<\/b>\nПолучаешь <b>3 597,52 ₽<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 0,07 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonrub13"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonrub13": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+3 597,52 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48443 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              13,80 TON\nПОЛУЧИЛ           3 597,52 ₽\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ            0,07 TON\n────────────────────────────\nИТОГО            +3 597,52 ₽<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonrub13": {"text": "🔒 <b>Сделка № 48443 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonrub18": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>18,40 TON<\/b>\nПолучаешь <b>4 796,70 ₽<\/b>\n\n├ курс: 1 TON ≈ 262,00 ₽\n├ комиссия: 0,5% · 0,09 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonrub18"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonrub18": {"text": "✅ <b>Обменяно<\/b>\n\n<b>+4 796,70 ₽<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48444 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              18,40 TON\nПОЛУЧИЛ           4 796,70 ₽\nКУРС        1 TON = 262,00 ₽\nКОМИССИЯ            0,09 TON\n────────────────────────────\nИТОГО            +4 796,70 ₽<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести RUB", "cb": "wd:rub"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonrub18": {"text": "🔒 <b>Сделка № 48444 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_usdt_ton": {"text": "💱 <b>💵 USDT → 💎 TON<\/b>\n\nСколько отдаёшь? Напиши сумму в USDT одним сообщением.\n\n├ баланс: <b>312,35 USDT<\/b>\n├ курс: 1 USDT ≈ 0,368321 TON\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 312,35 USDT", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:usdt"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_usdtton78": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>78,09 USDT<\/b>\nПолучаешь 💎 <b>28,62 TON<\/b>\n\n├ курс: 1 USDT ≈ 0,368321 TON\n├ комиссия: 0,5% · 0,39 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtton78"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtton78": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+28,62 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48445 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ             78,09 USDT\nПОЛУЧИЛ            28,62 TON\nКУРС   1 USDT = 0,368321 TON\nКОМИССИЯ           0,39 USDT\n────────────────────────────\nИТОГО             +28,62 TON<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtton78": {"text": "🔒 <b>Сделка № 48445 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtton156": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>156,18 USDT<\/b>\nПолучаешь 💎 <b>57,24 TON<\/b>\n\n├ курс: 1 USDT ≈ 0,368321 TON\n├ комиссия: 0,5% · 0,78 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtton156"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtton156": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+57,24 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48446 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            156,18 USDT\nПОЛУЧИЛ            57,24 TON\nКУРС   1 USDT = 0,368321 TON\nКОМИССИЯ           0,78 USDT\n────────────────────────────\nИТОГО             +57,24 TON<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtton156": {"text": "🔒 <b>Сделка № 48446 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtton234": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>234,26 USDT<\/b>\nПолучаешь 💎 <b>85,85 TON<\/b>\n\n├ курс: 1 USDT ≈ 0,368321 TON\n├ комиссия: 0,5% · 1,17 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtton234"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtton234": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+85,85 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48447 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            234,26 USDT\nПОЛУЧИЛ            85,85 TON\nКУРС   1 USDT = 0,368321 TON\nКОМИССИЯ           1,17 USDT\n────────────────────────────\nИТОГО             +85,85 TON<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtton234": {"text": "🔒 <b>Сделка № 48447 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtton312": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>312,35 USDT<\/b>\nПолучаешь 💎 <b>114,47 TON<\/b>\n\n├ курс: 1 USDT ≈ 0,368321 TON\n├ комиссия: 0,5% · 1,56 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtton312"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtton312": {"text": "✅ <b>Обменяно<\/b>\n\n💎 <b>+114,47 TON<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48448 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            312,35 USDT\nПОЛУЧИЛ           114,47 TON\nКУРС   1 USDT = 0,368321 TON\nКОМИССИЯ           1,56 USDT\n────────────────────────────\nИТОГО            +114,47 TON<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести TON", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtton312": {"text": "🔒 <b>Сделка № 48448 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_ton_usdt": {"text": "💱 <b>💎 TON → 💵 USDT<\/b>\n\nСколько отдаёшь? Напиши сумму в TON одним сообщением.\n\n├ баланс: <b>18,40 TON<\/b>\n├ курс: 1 TON ≈ 2,72 USDT\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 18,40 TON", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:ton"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_tonusdt4": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>4,60 TON<\/b>\nПолучаешь 💵 <b>12,43 USDT<\/b>\n\n├ курс: 1 TON ≈ 2,72 USDT\n├ комиссия: 0,5% · 0,02 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonusdt4"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonusdt4": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+12,43 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48449 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               4,60 TON\nПОЛУЧИЛ           12,43 USDT\nКУРС       1 TON = 2,72 USDT\nКОМИССИЯ            0,02 TON\n────────────────────────────\nИТОГО            +12,43 USDT<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonusdt4": {"text": "🔒 <b>Сделка № 48449 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonusdt9": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>9,20 TON<\/b>\nПолучаешь 💵 <b>24,85 USDT<\/b>\n\n├ курс: 1 TON ≈ 2,72 USDT\n├ комиссия: 0,5% · 0,05 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonusdt9"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonusdt9": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+24,85 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48450 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               9,20 TON\nПОЛУЧИЛ           24,85 USDT\nКУРС       1 TON = 2,72 USDT\nКОМИССИЯ            0,05 TON\n────────────────────────────\nИТОГО            +24,85 USDT<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonusdt9": {"text": "🔒 <b>Сделка № 48450 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonusdt13": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>13,80 TON<\/b>\nПолучаешь 💵 <b>37,28 USDT<\/b>\n\n├ курс: 1 TON ≈ 2,72 USDT\n├ комиссия: 0,5% · 0,07 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonusdt13"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonusdt13": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+37,28 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48451 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              13,80 TON\nПОЛУЧИЛ           37,28 USDT\nКУРС       1 TON = 2,72 USDT\nКОМИССИЯ            0,07 TON\n────────────────────────────\nИТОГО            +37,28 USDT<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonusdt13": {"text": "🔒 <b>Сделка № 48451 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonusdt18": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>18,40 TON<\/b>\nПолучаешь 💵 <b>49,71 USDT<\/b>\n\n├ курс: 1 TON ≈ 2,72 USDT\n├ комиссия: 0,5% · 0,09 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonusdt18"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonusdt18": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+49,71 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48452 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              18,40 TON\nПОЛУЧИЛ           49,71 USDT\nКУРС       1 TON = 2,72 USDT\nКОМИССИЯ            0,09 TON\n────────────────────────────\nИТОГО            +49,71 USDT<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonusdt18": {"text": "🔒 <b>Сделка № 48452 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_usdt_btc": {"text": "💱 <b>💵 USDT → 🟠 BTC<\/b>\n\nСколько отдаёшь? Напиши сумму в USDT одним сообщением.\n\n├ баланс: <b>312,35 USDT<\/b>\n├ курс: 1 USDT ≈ 0,000011 BTC\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 312,35 USDT", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:usdt"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_usdtbtc78": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>78,09 USDT<\/b>\nПолучаешь 🟠 <b>0,000816 BTC<\/b>\n\n├ курс: 1 USDT ≈ 0,000011 BTC\n├ комиссия: 0,5% · 0,39 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtbtc78"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtbtc78": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000816 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48453 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ             78,09 USDT\nПОЛУЧИЛ         0,000816 BTC\nКУРС   1 USDT = 0,000011 BTC\nКОМИССИЯ           0,39 USDT\n────────────────────────────\nИТОГО          +0,000816 BTC<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtbtc78": {"text": "🔒 <b>Сделка № 48453 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtbtc156": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>156,18 USDT<\/b>\nПолучаешь 🟠 <b>0,001633 BTC<\/b>\n\n├ курс: 1 USDT ≈ 0,000011 BTC\n├ комиссия: 0,5% · 0,78 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtbtc156"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtbtc156": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,001633 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48454 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            156,18 USDT\nПОЛУЧИЛ         0,001633 BTC\nКУРС   1 USDT = 0,000011 BTC\nКОМИССИЯ           0,78 USDT\n────────────────────────────\nИТОГО          +0,001633 BTC<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtbtc156": {"text": "🔒 <b>Сделка № 48454 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtbtc234": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>234,26 USDT<\/b>\nПолучаешь 🟠 <b>0,002449 BTC<\/b>\n\n├ курс: 1 USDT ≈ 0,000011 BTC\n├ комиссия: 0,5% · 1,17 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtbtc234"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtbtc234": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,002449 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48455 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            234,26 USDT\nПОЛУЧИЛ         0,002449 BTC\nКУРС   1 USDT = 0,000011 BTC\nКОМИССИЯ           1,17 USDT\n────────────────────────────\nИТОГО          +0,002449 BTC<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtbtc234": {"text": "🔒 <b>Сделка № 48455 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdtbtc312": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>312,35 USDT<\/b>\nПолучаешь 🟠 <b>0,003266 BTC<\/b>\n\n├ курс: 1 USDT ≈ 0,000011 BTC\n├ комиссия: 0,5% · 1,56 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdtbtc312"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdtbtc312": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,003266 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48456 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            312,35 USDT\nПОЛУЧИЛ         0,003266 BTC\nКУРС   1 USDT = 0,000011 BTC\nКОМИССИЯ           1,56 USDT\n────────────────────────────\nИТОГО          +0,003266 BTC<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdtbtc312": {"text": "🔒 <b>Сделка № 48456 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_ton_btc": {"text": "💱 <b>💎 TON → 🟠 BTC<\/b>\n\nСколько отдаёшь? Напиши сумму в TON одним сообщением.\n\n├ баланс: <b>18,40 TON<\/b>\n├ курс: 1 TON ≈ 0,000029 BTC\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 18,40 TON", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:ton"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_tonbtc4": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>4,60 TON<\/b>\nПолучаешь 🟠 <b>0,000131 BTC<\/b>\n\n├ курс: 1 TON ≈ 0,000029 BTC\n├ комиссия: 0,5% · 0,02 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonbtc4"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonbtc4": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000131 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48457 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               4,60 TON\nПОЛУЧИЛ         0,000131 BTC\nКУРС    1 TON = 0,000029 BTC\nКОМИССИЯ            0,02 TON\n────────────────────────────\nИТОГО          +0,000131 BTC<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonbtc4": {"text": "🔒 <b>Сделка № 48457 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonbtc9": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>9,20 TON<\/b>\nПолучаешь 🟠 <b>0,000261 BTC<\/b>\n\n├ курс: 1 TON ≈ 0,000029 BTC\n├ комиссия: 0,5% · 0,05 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonbtc9"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonbtc9": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000261 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48458 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               9,20 TON\nПОЛУЧИЛ         0,000261 BTC\nКУРС    1 TON = 0,000029 BTC\nКОМИССИЯ            0,05 TON\n────────────────────────────\nИТОГО          +0,000261 BTC<\/code><\/pre>\n\n<i>Как по маслу.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonbtc9": {"text": "🔒 <b>Сделка № 48458 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonbtc13": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>13,80 TON<\/b>\nПолучаешь 🟠 <b>0,000392 BTC<\/b>\n\n├ курс: 1 TON ≈ 0,000029 BTC\n├ комиссия: 0,5% · 0,07 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonbtc13"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonbtc13": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000392 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48459 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              13,80 TON\nПОЛУЧИЛ         0,000392 BTC\nКУРС    1 TON = 0,000029 BTC\nКОМИССИЯ            0,07 TON\n────────────────────────────\nИТОГО          +0,000392 BTC<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonbtc13": {"text": "🔒 <b>Сделка № 48459 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_tonbtc18": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>18,40 TON<\/b>\nПолучаешь 🟠 <b>0,000522 BTC<\/b>\n\n├ курс: 1 TON ≈ 0,000029 BTC\n├ комиссия: 0,5% · 0,09 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:tonbtc18"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_tonbtc18": {"text": "✅ <b>Обменяно<\/b>\n\n🟠 <b>+0,000522 BTC<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48460 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              18,40 TON\nПОЛУЧИЛ         0,000522 BTC\nКУРС    1 TON = 0,000029 BTC\nКОМИССИЯ            0,09 TON\n────────────────────────────\nИТОГО          +0,000522 BTC<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести BTC", "cb": "wd:btc"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_tonbtc18": {"text": "🔒 <b>Сделка № 48460 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_usdt_eth": {"text": "💱 <b>💵 USDT → 🔷 ETH<\/b>\n\nСколько отдаёшь? Напиши сумму в USDT одним сообщением.\n\n├ баланс: <b>312,35 USDT<\/b>\n├ курс: 1 USDT ≈ 0,000303 ETH\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 312,35 USDT", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:usdt"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_usdteth78": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>78,09 USDT<\/b>\nПолучаешь 🔷 <b>0,02355 ETH<\/b>\n\n├ курс: 1 USDT ≈ 0,000303 ETH\n├ комиссия: 0,5% · 0,39 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdteth78"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdteth78": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,02355 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48461 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ             78,09 USDT\nПОЛУЧИЛ          0,02355 ETH\nКУРС   1 USDT = 0,000303 ETH\nКОМИССИЯ           0,39 USDT\n────────────────────────────\nИТОГО           +0,02355 ETH<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdteth78": {"text": "🔒 <b>Сделка № 48461 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdteth156": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>156,18 USDT<\/b>\nПолучаешь 🔷 <b>0,04709 ETH<\/b>\n\n├ курс: 1 USDT ≈ 0,000303 ETH\n├ комиссия: 0,5% · 0,78 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdteth156"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdteth156": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,04709 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48462 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            156,18 USDT\nПОЛУЧИЛ          0,04709 ETH\nКУРС   1 USDT = 0,000303 ETH\nКОМИССИЯ           0,78 USDT\n────────────────────────────\nИТОГО           +0,04709 ETH<\/code><\/pre>\n\n<i>Чистая работа. Чек держи.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdteth156": {"text": "🔒 <b>Сделка № 48462 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdteth234": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>234,26 USDT<\/b>\nПолучаешь 🔷 <b>0,07063 ETH<\/b>\n\n├ курс: 1 USDT ≈ 0,000303 ETH\n├ комиссия: 0,5% · 1,17 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdteth234"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdteth234": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,07063 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48463 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            234,26 USDT\nПОЛУЧИЛ          0,07063 ETH\nКУРС   1 USDT = 0,000303 ETH\nКОМИССИЯ           1,17 USDT\n────────────────────────────\nИТОГО           +0,07063 ETH<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdteth234": {"text": "🔒 <b>Сделка № 48463 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_usdteth312": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💵 <b>312,35 USDT<\/b>\nПолучаешь 🔷 <b>0,09418 ETH<\/b>\n\n├ курс: 1 USDT ≈ 0,000303 ETH\n├ комиссия: 0,5% · 1,56 USDT\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:usdteth312"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_usdteth312": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,09418 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48464 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ            312,35 USDT\nПОЛУЧИЛ          0,09418 ETH\nКУРС   1 USDT = 0,000303 ETH\nКОМИССИЯ           1,56 USDT\n────────────────────────────\nИТОГО           +0,09418 ETH<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_usdteth312": {"text": "🔒 <b>Сделка № 48464 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_amount_ton_eth": {"text": "💱 <b>💎 TON → 🔷 ETH<\/b>\n\nСколько отдаёшь? Напиши сумму в TON одним сообщением.\n\n├ баланс: <b>18,40 TON<\/b>\n├ курс: 1 TON ≈ 0,000823 ETH\n└ минимум: 100 ₽", "kb": [[{"t": "25%", "cb": "x:p:25"}, {"t": "50%", "cb": "x:p:50"}, {"t": "75%", "cb": "x:p:75"}], [{"t": "Всё · 18,40 TON", "cb": "x:all"}], [{"t": "↩️ Назад", "cb": "x:g:ton"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "q_toneth4": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>4,60 TON<\/b>\nПолучаешь 🔷 <b>0,00377 ETH<\/b>\n\n├ курс: 1 TON ≈ 0,000823 ETH\n├ комиссия: 0,5% · 0,02 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:toneth4"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_toneth4": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,00377 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48465 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               4,60 TON\nПОЛУЧИЛ          0,00377 ETH\nКУРС    1 TON = 0,000823 ETH\nКОМИССИЯ            0,02 TON\n────────────────────────────\nИТОГО           +0,00377 ETH<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_toneth4": {"text": "🔒 <b>Сделка № 48465 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_toneth9": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>9,20 TON<\/b>\nПолучаешь 🔷 <b>0,00753 ETH<\/b>\n\n├ курс: 1 TON ≈ 0,000823 ETH\n├ комиссия: 0,5% · 0,05 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Жми, пока курс горячий.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:toneth9"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_toneth9": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,00753 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48466 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ               9,20 TON\nПОЛУЧИЛ          0,00753 ETH\nКУРС    1 TON = 0,000823 ETH\nКОМИССИЯ            0,05 TON\n────────────────────────────\nИТОГО           +0,00753 ETH<\/code><\/pre>\n\n<i>Вжух — и готово.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_toneth9": {"text": "🔒 <b>Сделка № 48466 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_toneth13": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>13,80 TON<\/b>\nПолучаешь 🔷 <b>0,0113 ETH<\/b>\n\n├ курс: 1 TON ≈ 0,000823 ETH\n├ комиссия: 0,5% · 0,07 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Ну что, по рукам?<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:toneth13"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_toneth13": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,0113 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48467 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              13,80 TON\nПОЛУЧИЛ           0,0113 ETH\nКУРС    1 TON = 0,000823 ETH\nКОМИССИЯ            0,07 TON\n────────────────────────────\nИТОГО            +0,0113 ETH<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_toneth13": {"text": "🔒 <b>Сделка № 48467 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_toneth18": {"text": "🧾 <b>Проверь сделку<\/b>\n\nОтдаёшь 💎 <b>18,40 TON<\/b>\nПолучаешь 🔷 <b>0,01506 ETH<\/b>\n\n├ курс: 1 TON ≈ 0,000823 ETH\n├ комиссия: 0,5% · 0,09 TON\n└ курс держу до <b>08:25:24<\/b> ⏱\n\n<i>Проверь цифры. Я проверил.<\/i>", "kb": [[{"t": "✅ Меняем", "cb": "x:ok:toneth18"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_toneth18": {"text": "✅ <b>Обменяно<\/b>\n\n🔷 <b>+0,01506 ETH<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48468 · 12.11.2026 08:24\n────────────────────────────\nОТДАЛ              18,40 TON\nПОЛУЧИЛ          0,01506 ETH\nКУРС    1 TON = 0,000823 ETH\nКОМИССИЯ            0,09 TON\n────────────────────────────\nИТОГО           +0,01506 ETH<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести ETH", "cb": "wd:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_toneth18": {"text": "🔒 <b>Сделка № 48468 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "q_expired": {"text": "⌛️ <b>Минута вышла — пересчитал<\/b>\n\nОтдаёшь <b>5 000,00 ₽<\/b>\nПолучаешь 💵 <b>51,49 USDT<\/b> <i>(−0,06 USDT к прошлому)<\/i>\n\n├ курс: 1 USDT ≈ 96,62 ₽\n└ новый курс держу до <b>08:26:31<\/b> ⏱", "kb": [[{"t": "✅ Меняем по новому", "cb": "x:ok:rubusdt5000n"}], [{"t": "✏️ Другая сумма", "cb": "x:edit"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "done_rubusdt5000n": {"text": "✅ <b>Обменяно<\/b>\n\n💵 <b>+51,49 USDT<\/b> уже в кошельке\n\n<pre><code class=\"language-чек\">№ 48469 · 12.11.2026 08:25\n────────────────────────────\nОТДАЛ           5 000,00 RUB\nПОЛУЧИЛ           51,49 USDT\nКУРС        1 USDT = 96,62 ₽\nКОМИССИЯ           25,00 RUB\n────────────────────────────\nИТОГО            +51,49 USDT<\/code><\/pre>\n\n<i>Обменяно. Я молодец. Ты тоже.<\/i>", "kb": [[{"t": "💱 Ещё обмен", "cb": "x"}, {"t": "📤 Вывести USDT", "cb": "wd:usdt"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🎉"}, "closed_rubusdt5000n": {"text": "🔒 <b>Сделка № 48469 закрыта<\/b> · чек ниже 👇", "kb": [], "effect": ""}, "ex_s0": {"text": "⏳ <b>Открываю сейф…<\/b>\n\n▰▱▱  фиксирую курс", "kb": [], "effect": ""}, "ex_s1": {"text": "⏳ <b>Фиксирую курс…<\/b>\n\n▰▰▱  отсчитываю монеты", "kb": [], "effect": ""}, "ex_s2": {"text": "⏳ <b>Отсчитываю…<\/b>\n\n▰▰▰  кладу в кошелёк", "kb": [], "effect": ""}, "e_min": {"text": "📏 Меньше сотки не меняю — гордость.\nМинимум <b>100 ₽<\/b>.", "kb": [[{"t": "1 000", "cb": "x:a:1000"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "e_over_rub": {"text": "🙅 Столько нет: на балансе <b>164 250,00 ₽<\/b>.\nСейф не резиновый и не печатный станок.", "kb": [[{"t": "Всё · 164 250,00 ₽", "cb": "x:all"}, {"t": "📥 Пополнить", "cb": "dep"}]], "effect": ""}, "e_over_usdt": {"text": "🙅 Столько нет: на балансе <b>312,35 USDT<\/b>.\nСейф не резиновый и не печатный станок.", "kb": [[{"t": "Всё · 312,35 USDT", "cb": "x:all"}, {"t": "📥 Пополнить", "cb": "dep"}]], "effect": ""}, "e_over_ton": {"text": "🙅 Столько нет: на балансе <b>18,40 TON<\/b>.\nСейф не резиновый и не печатный станок.", "kb": [[{"t": "Всё · 18,40 TON", "cb": "x:all"}, {"t": "📥 Пополнить", "cb": "dep"}]], "effect": ""}, "e_nan": {"text": "✏️ Нужна сумма цифрами, например <code>5000<\/code> или <code>12,5<\/code>.", "kb": [], "effect": ""}, "dep": {"text": "📥 <b>Пополнить<\/b>\n\nЧем пополняем?\n\n├ ⚡️ СБП — мгновенно, 0%\n├ 💳 карта Мир — до 15 минут, 0%\n└ 💵💎 крипта — после подтверждений сети", "kb": [[{"t": "⚡️ ₽ по СБП", "cb": "dep:sbp"}, {"t": "💳 ₽ картой", "cb": "dep:card"}], [{"t": "💵 USDT", "cb": "dep:usdt"}, {"t": "💎 TON", "cb": "dep:ton"}], [{"t": "🟠 BTC", "cb": "dep:btc"}, {"t": "🔷 ETH", "cb": "dep:eth"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "dep_amount_sbp": {"text": "📥 <b>Пополнение по СБП<\/b>\n\nСколько кладём? Напиши сумму в рублях.\n\n└ от 100 ₽ до 300 000 ₽ за раз", "kb": [[{"t": "1 000", "cb": "dep:sbp:1000"}, {"t": "5 000", "cb": "dep:sbp:5000"}, {"t": "10 000", "cb": "dep:sbp:10000"}], [{"t": "↩️ Назад", "cb": "dep"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "dep_pay_sbp_1000": {"text": "📥 <b>К оплате 1 000,00 ₽<\/b>\n\nОткроется банк — подтверди перевод по СБП.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 1 000 ₽", "url": "https://pay.menyala.example/sbp/1000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_sbp_1000": {"text": "📥 <b>+1 000,00 ₽<\/b> в сейфе\n\nПополнение · СБП — зачислено.\n└ баланс в рублях: <b>165 250,00 ₽<\/b>\n\n<i>Ням. Вкусно.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_pay_sbp_5000": {"text": "📥 <b>К оплате 5 000,00 ₽<\/b>\n\nОткроется банк — подтверди перевод по СБП.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 5 000 ₽", "url": "https://pay.menyala.example/sbp/5000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_sbp_5000": {"text": "📥 <b>+5 000,00 ₽<\/b> в сейфе\n\nПополнение · СБП — зачислено.\n└ баланс в рублях: <b>169 250,00 ₽<\/b>\n\n<i>Ням. Вкусно.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_pay_sbp_10000": {"text": "📥 <b>К оплате 10 000,00 ₽<\/b>\n\nОткроется банк — подтверди перевод по СБП.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 10 000 ₽", "url": "https://pay.menyala.example/sbp/10000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_sbp_10000": {"text": "📥 <b>+10 000,00 ₽<\/b> в сейфе\n\nПополнение · СБП — зачислено.\n└ баланс в рублях: <b>174 250,00 ₽<\/b>\n\n<i>Принято на хранение.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_amount_card": {"text": "📥 <b>Пополнение картой<\/b>\n\nСколько кладём? Напиши сумму в рублях.\n\n└ от 100 ₽ до 300 000 ₽ за раз", "kb": [[{"t": "1 000", "cb": "dep:card:1000"}, {"t": "5 000", "cb": "dep:card:5000"}, {"t": "10 000", "cb": "dep:card:10000"}], [{"t": "↩️ Назад", "cb": "dep"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "dep_pay_card_1000": {"text": "📥 <b>К оплате 1 000,00 ₽<\/b>\n\nОткроется защищённая страница оплаты картой Мир.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 1 000 ₽", "url": "https://pay.menyala.example/card/1000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_card_1000": {"text": "📥 <b>+1 000,00 ₽<\/b> в сейфе\n\nПополнение · карта Мир — зачислено.\n└ баланс в рублях: <b>165 250,00 ₽<\/b>\n\n<i>Положил в сейф, закрыл на два оборота.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_pay_card_5000": {"text": "📥 <b>К оплате 5 000,00 ₽<\/b>\n\nОткроется защищённая страница оплаты картой Мир.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 5 000 ₽", "url": "https://pay.menyala.example/card/5000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_card_5000": {"text": "📥 <b>+5 000,00 ₽<\/b> в сейфе\n\nПополнение · карта Мир — зачислено.\n└ баланс в рублях: <b>169 250,00 ₽<\/b>\n\n<i>Принято на хранение.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_pay_card_10000": {"text": "📥 <b>К оплате 10 000,00 ₽<\/b>\n\nОткроется защищённая страница оплаты картой Мир.\nЗачислю сам, как только банк подтвердит — обычно это секунды.\n\n└ ссылка живёт 30 минут", "kb": [[{"t": "⚡️ Оплатить 10 000 ₽", "url": "https://pay.menyala.example/card/10000"}], [{"t": "✖️ Отменить заявку", "cb": "dep:cancel"}]], "effect": ""}, "n_dep_card_10000": {"text": "📥 <b>+10 000,00 ₽<\/b> в сейфе\n\nПополнение · карта Мир — зачислено.\n└ баланс в рублях: <b>174 250,00 ₽<\/b>\n\n<i>Ням. Вкусно.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "dep_usdt": {"text": "📥 <b>Пополнение USDT<\/b> · сеть TRON (TRC-20)\n\nТвой адрес — тапни, скопируется:\n<code>TQ7mVb4kY2nP8xR1sLc9Hd3FwJ6eZu5AqX<\/code>\n\n⚠️ Только сеть <b>TRON (TRC-20)<\/b>. Монеты из другой сети потеряются — даже я не найду.\n\n└ зачислю после 20 подтверждений, обычно 1–3 минуты", "kb": [[{"t": "📋 Скопировать адрес", "copy": "TQ7mVb4kY2nP8xR1sLc9Hd3FwJ6eZu5AqX"}], [{"t": "🔳 QR-код", "cb": "dep:qr:usdt"}, {"t": "↩️ Назад", "cb": "dep"}]], "effect": ""}, "dep_ton": {"text": "📥 <b>Пополнение TON<\/b> · сеть TON\n\nТвой адрес — тапни, скопируется:\n<code>UQBv3kZ9xq2N7mLp4HsY8dWc1tRf6eJa0uGiK5oPn2Vb<\/code>\n\n⚠️ Только сеть <b>TON<\/b>. Монеты из другой сети потеряются — даже я не найду.\n\n└ зачислю после 1 подтверждения, обычно 1–3 минуты", "kb": [[{"t": "📋 Скопировать адрес", "copy": "UQBv3kZ9xq2N7mLp4HsY8dWc1tRf6eJa0uGiK5oPn2Vb"}], [{"t": "🔳 QR-код", "cb": "dep:qr:ton"}, {"t": "↩️ Назад", "cb": "dep"}]], "effect": ""}, "dep_btc": {"text": "📥 <b>Пополнение BTC<\/b> · сеть Bitcoin\n\nТвой адрес — тапни, скопируется:\n<code>bc1q8d4w9k2m7xz5qyl3p0rj6vh2t8sne4fucw<\/code>\n\n⚠️ Только сеть <b>Bitcoin<\/b>. Монеты из другой сети потеряются — даже я не найду.\n\n└ зачислю после 2 подтверждений, обычно 1–3 минуты", "kb": [[{"t": "📋 Скопировать адрес", "copy": "bc1q8d4w9k2m7xz5qyl3p0rj6vh2t8sne4fucw"}], [{"t": "🔳 QR-код", "cb": "dep:qr:btc"}, {"t": "↩️ Назад", "cb": "dep"}]], "effect": ""}, "dep_eth": {"text": "📥 <b>Пополнение ETH<\/b> · сеть Ethereum (ERC-20)\n\nТвой адрес — тапни, скопируется:\n<code>0x7a3F9c21B84e0D5f6A1c9E3b72D4f08C1e6B9a54<\/code>\n\n⚠️ Только сеть <b>Ethereum (ERC-20)<\/b>. Монеты из другой сети потеряются — даже я не найду.\n\n└ зачислю после 12 подтверждений, обычно 1–3 минуты", "kb": [[{"t": "📋 Скопировать адрес", "copy": "0x7a3F9c21B84e0D5f6A1c9E3b72D4f08C1e6B9a54"}], [{"t": "🔳 QR-код", "cb": "dep:qr:eth"}, {"t": "↩️ Назад", "cb": "dep"}]], "effect": ""}, "e_limit": {"text": "🚧 <b>Дневной лимит<\/b>\n\nНа сегодня осталось <b>42 000 ₽<\/b>. Завтра лимит обновится.", "kb": [[{"t": "📄 Лимиты", "cb": "lim"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "wd": {"text": "📤 <b>Вывести<\/b>\n\nКуда отправляем?\n\n├ ⚡️ СБП — до 5 минут, 0%\n├ 💳 карта Мир — до 30 минут, 1%\n└ крипта — комиссия сети", "kb": [[{"t": "⚡️ ₽ по СБП", "cb": "wd:sbp"}, {"t": "💳 ₽ на карту", "cb": "wd:card"}], [{"t": "💵 USDT · 312,35", "cb": "wd:usdt"}, {"t": "💎 TON · 18,40", "cb": "wd:ton"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "wd_bank": {"text": "🏦 <b>Какой банк?<\/b>\n\nВыбери банк получателя.", "kb": [[{"t": "Т-Банк", "cb": "wd:bank:0"}, {"t": "Сбер", "cb": "wd:bank:1"}], [{"t": "Альфа", "cb": "wd:bank:2"}, {"t": "ВТБ", "cb": "wd:bank:3"}], [{"t": "Озон Банк", "cb": "wd:bank:4"}, {"t": "Яндекс Банк", "cb": "wd:bank:5"}], [{"t": "🔎 Другой банк", "cb": "wd:bank:other"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_amount_sbp": {"text": "📤 <b>Вывод рублей<\/b>\n\nСколько выводим? Напиши сумму.\n\n└ доступно: <b>164 250,00 ₽<\/b>", "kb": [[{"t": "Всё · 164 250,00 ₽", "cb": "wd:all:rub"}], [{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_dest_sbp": {"text": "📤 <b>Куда отправить?<\/b>\n\nПришли номер телефона, привязанный к СБП, например <code>+7 900 123-45-67<\/code>.\nБанк выберешь следующим шагом.", "kb": [[{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_amount_card": {"text": "📤 <b>Вывод рублей<\/b>\n\nСколько выводим? Напиши сумму.\n\n└ доступно: <b>164 250,00 ₽<\/b>", "kb": [[{"t": "Всё · 164 250,00 ₽", "cb": "wd:all:rub"}], [{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_dest_card": {"text": "📤 <b>Куда отправить?<\/b>\n\nПришли номер карты Мир — 16 цифр, можно с пробелами.", "kb": [[{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_0": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · Т-Банк\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_1": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · Сбер\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_2": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · Альфа\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_3": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · ВТБ\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_4": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · Озон Банк\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_sbp_5": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: СБП · +7 900 •••-••-67 · Яндекс Банк\n\n├ комиссия: 0,00 ₽\n├ придёт: <b>5 000,00 ₽<\/b>\n└ срок: до 5 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_card": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>5 000,00 ₽<\/b>\nКуда: карта Мир •• 7890\n\n├ комиссия: 50,00 ₽\n├ придёт: <b>4 950,00 ₽<\/b>\n└ срок: до 30 минут\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_sent_sbp": {"text": "📤 <b>Отправил 5 000,00 ₽<\/b>\n\nКуда: СБП · +7 900 •••-••-67 · Т-Банк\n└ статус: в пути · пришлю сообщение, когда дойдёт\n\n<i>Улетели. Пиши, как дойдут.<\/i>", "kb": [[{"t": "🧾 История", "cb": "hist:1"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "wd_sent_card": {"text": "📤 <b>Отправил 4 950,00 ₽<\/b>\n\nКуда: карта Мир •• 7890\n└ статус: в пути · пришлю сообщение, когда дойдёт\n\n<i>Улетели. Пиши, как дойдут.<\/i>", "kb": [[{"t": "🧾 История", "cb": "hist:1"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "n_wd_sbp": {"text": "✅ <b>Вывод выполнен<\/b>\n\n5 000,00 ₽ → СБП · +7 900 •••-••-67 · Т-Банк\n└ банк подтвердил перевод", "kb": [[{"t": "🧾 История", "cb": "hist:1"}]], "effect": ""}, "n_wd_card": {"text": "✅ <b>Вывод выполнен<\/b>\n\n4 950,00 ₽ → карта Мир •• 7890\n└ банк подтвердил перевод", "kb": [[{"t": "🧾 История", "cb": "hist:1"}]], "effect": ""}, "wd_amount_usdt": {"text": "📤 <b>Вывод USDT<\/b>\n\nСколько выводим? Напиши сумму.\n\n└ доступно: <b>312,35 USDT<\/b>", "kb": [[{"t": "Всё · 312,35 USDT", "cb": "wd:all:usdt"}], [{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_dest_usdt": {"text": "📤 <b>Куда отправить?<\/b>\n\nПришли адрес в сети <b>TRON (TRC-20)<\/b>.\n\n⚠️ Проверь сеть: в другую монеты уйдут навсегда.", "kb": [[{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_usdt": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>100,00 USDT<\/b>\nКуда: TRON (TRC-20) · TQ7mVb…Zu5AqX\n\n├ комиссия: 1,00 USDT\n├ придёт: <b>99,00 USDT<\/b>\n└ срок: 1–3 минуты\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_sent_usdt": {"text": "📤 <b>Отправил 99,00 USDT<\/b>\n\nКуда: TRON (TRC-20) · TQ7mVb…Zu5AqX\n└ статус: в пути · пришлю сообщение, когда дойдёт\n\n<i>Отпустил с тяжёлым сердцем.<\/i>", "kb": [[{"t": "🧾 История", "cb": "hist:1"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "n_wd_usdt": {"text": "✅ <b>Вывод выполнен<\/b>\n\n99,00 USDT → TRON (TRC-20) · TQ7mVb…Zu5AqX\n└ банк подтвердил перевод", "kb": [[{"t": "🧾 История", "cb": "hist:1"}]], "effect": ""}, "e_addr_usdt": {"text": "⚠️ <b>Не похоже на адрес TRON (TRC-20)<\/b>\n\nАдрес TRON начинается с <code>T<\/code> и состоит из 34 символов.\nПроверь и пришли ещё раз.", "kb": [[{"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_amount_ton": {"text": "📤 <b>Вывод TON<\/b>\n\nСколько выводим? Напиши сумму.\n\n└ доступно: <b>18,40 TON<\/b>", "kb": [[{"t": "Всё · 18,40 TON", "cb": "wd:all:ton"}], [{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_dest_ton": {"text": "📤 <b>Куда отправить?<\/b>\n\nПришли адрес в сети <b>TON<\/b>.\n\n⚠️ Проверь сеть: в другую монеты уйдут навсегда.", "kb": [[{"t": "↩️ Назад", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_ok_ton": {"text": "📤 <b>Проверь вывод<\/b>\n\nСумма: <b>10,00 TON<\/b>\nКуда: TON · UQBv3k…oPn2Vb\n\n├ комиссия: 0,05 TON\n├ придёт: <b>9,95 TON<\/b>\n└ срок: 1–3 минуты\n\nПроверь реквизиты — отправленное назад не вернуть.", "kb": [[{"t": "✅ Вывести", "cb": "wd:ok"}], [{"t": "✏️ Изменить", "cb": "wd"}, {"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wd_sent_ton": {"text": "📤 <b>Отправил 9,95 TON<\/b>\n\nКуда: TON · UQBv3k…oPn2Vb\n└ статус: в пути · пришлю сообщение, когда дойдёт\n\n<i>Ушли по адресу. Я проследил.<\/i>", "kb": [[{"t": "🧾 История", "cb": "hist:1"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "n_wd_ton": {"text": "✅ <b>Вывод выполнен<\/b>\n\n9,95 TON → TON · UQBv3k…oPn2Vb\n└ банк подтвердил перевод", "kb": [[{"t": "🧾 История", "cb": "hist:1"}]], "effect": ""}, "e_addr_ton": {"text": "⚠️ <b>Не похоже на адрес TON<\/b>\n\nАдрес TON начинается с <code>UQ<\/code> или <code>EQ<\/code>, 48 символов.\nПроверь и пришли ещё раз.", "kb": [[{"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "e_net_usdt": {"text": "⛔️ <b>Это адрес сети Ethereum (ERC-20)<\/b>, а выводим в TRON (TRC-20).\n\nМонеты потеряются навсегда — не рискуем. Пришли адрес в сети TRON (TRC-20).", "kb": [[{"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "wallet_0": {"text": "👛 <b>Кошелёк<\/b>\n\n₽ Рубли: <b>164 250,00 ₽<\/b>\n💵 USDT: <b>312,35 USDT<\/b> · ≈ 30 142 ₽\n💎 TON: <b>18,40 TON<\/b> · ≈ 4 821 ₽\n\n💰 Всего ≈ <b>199 212,57 ₽<\/b>", "kb": [[{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "💱 Обменять", "cb": "x"}, {"t": "🧾 История", "cb": "hist:1"}], [{"t": "🙈 Прятать суммы", "cb": "set:h"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "wallet_1": {"text": "👛 <b>Кошелёк<\/b>\n\n₽ Рубли: <tg-spoiler><b>164 250,00 ₽<\/b><\/tg-spoiler>\n💵 USDT: <tg-spoiler><b>312,35 USDT<\/b> · ≈ 30 142 ₽<\/tg-spoiler>\n💎 TON: <tg-spoiler><b>18,40 TON<\/b> · ≈ 4 821 ₽<\/tg-spoiler>\n\n💰 Всего ≈ <tg-spoiler><b>199 212,57 ₽<\/b><\/tg-spoiler>", "kb": [[{"t": "📥 Пополнить", "cb": "dep"}, {"t": "📤 Вывести", "cb": "wd"}], [{"t": "💱 Обменять", "cb": "x"}, {"t": "🧾 История", "cb": "hist:1"}], [{"t": "👁 Показывать суммы", "cb": "set:h"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "hist1": {"text": "🧾 <b>История<\/b> · стр. 1 из 2\n\n🟢 <b>+51,55 USDT<\/b> · обмен ₽ → USDT\n      <i>сегодня, 08:24<\/i>\n\n🟢 <b>+5 000,00 ₽<\/b> · пополнение СБП\n      <i>сегодня, 08:20<\/i>\n\n🟢 <b>+100,00 ₽<\/b> · сотка за друга\n      <i>вчера, 19:48<\/i>\n\n🔴 <b>−1 000,00 ₽<\/b> · вывод СБП\n      <i>вчера, 18:20<\/i>\n\n🔴 <b>−4 950,00 ₽<\/b> · вывод на карту\n      <i>вчера, 12:02 · ⏳ в пути<\/i>", "kb": [[{"t": "1 / 2", "cb": "noop"}, {"t": "▶️", "cb": "hist:2"}], [{"t": "🔐 Вся история в приложении", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/#history"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "hist2": {"text": "🧾 <b>История<\/b> · стр. 2 из 2\n\n🟢 <b>+4 776,00 ₽<\/b> · обмен USDT → ₽\n      <i>10 ноября, 12:17<\/i>\n\n🟢 <b>+50,00 USDT<\/b> · пополнение USDT\n      <i>8 ноября, 09:03<\/i>\n\n⚪️ <b>−5,00 TON<\/b> · вывод TON\n      <i>8 ноября, 21:40 · ❌ отклонён<\/i>\n\n🟢 <b>+23,40 TON<\/b> · обмен ₽ → TON\n      <i>8 ноября, 20:12<\/i>", "kb": [[{"t": "◀️", "cb": "hist:1"}, {"t": "2 / 2", "cb": "noop"}], [{"t": "🔐 Вся история в приложении", "webapp": "https://sadsfghjrtewg.github.io/menyala-preview/v2/#history"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "ref": {"text": "🎁 <b>Сотка за друга<\/b>\n\nПлачу живыми рублями за каждого, кого позовёшь:\n├ друг поменял от 1 000 ₽ → <b>+100 ₽<\/b>\n└ наменял 10 000 ₽ за всё время → ещё <b>+100 ₽<\/b>\n\nТвоя ссылка — тапни, скопируется:\n<code>t.me/menyala_bot?start=r843726<\/code>\n\n👥 Друзей: <b>24<\/b> · уже меняли: <b>12<\/b>\n💰 На реф-балансе: <b>1 700 ₽<\/b> · всего заработано 2 300 ₽\n\n<i>Чем больше друзей, тем толще сейф.<\/i>", "kb": [[{"t": "📨 Позвать друзей", "share": ""}], [{"t": "📋 Скопировать ссылку", "copy": "t.me/menyala_bot?start=r843726"}], [{"t": "💸 Забрать 1 700 ₽", "cb": "ref:claim"}, {"t": "👥 Мои друзья", "cb": "ref:list:1"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "ref_0": {"text": "🎁 <b>Сотка за друга<\/b>\n\nПлачу живыми рублями за каждого, кого позовёшь:\n├ друг поменял от 1 000 ₽ → <b>+100 ₽<\/b>\n└ наменял 10 000 ₽ за всё время → ещё <b>+100 ₽<\/b>\n\nТвоя ссылка — тапни, скопируется:\n<code>t.me/menyala_bot?start=r843726<\/code>\n\n👥 Друзей: <b>24<\/b> · уже меняли: <b>12<\/b>\n💰 На реф-балансе: <b>0 ₽<\/b> · всего заработано 2 300 ₽\n\n<i>Чем больше друзей, тем толще сейф.<\/i>", "kb": [[{"t": "📨 Позвать друзей", "share": ""}], [{"t": "📋 Скопировать ссылку", "copy": "t.me/menyala_bot?start=r843726"}], [{"t": "💸 Забирать пока нечего", "cb": "ref:claim"}, {"t": "👥 Мои друзья", "cb": "ref:list:1"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "ref_claimed": {"text": "💸 <b>1 700 ₽ в кошельке<\/b>\n\nПеревёл с реф-баланса на рублёвый счёт.\n└ рублей теперь: <b>165 950,00 ₽<\/b>\n\n<i>Друзья окупились.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "📤 Вывести", "cb": "wd:sbp"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": "🔥"}, "ref_friends": {"text": "👥 <b>Твои друзья<\/b> · 24\n\n✅✅ <b>Вася<\/b> · обе сотки твои · <b>+200 ₽<\/b>\n✅▫️ <b>Лена<\/b> · ждём 10 000 ₽ за всё время · <b>+100 ₽<\/b>\n✅✅ <b>Дмитрий<\/b> · обе сотки твои · <b>+200 ₽<\/b>\n✅▫️ <b>Катя<\/b> · ждём 10 000 ₽ за всё время · <b>+100 ₽<\/b>\n▫️▫️ <b>Миша<\/b> · ещё не поменял от 1 000 ₽\n▫️▫️ <b>Саша<\/b> · ещё не поменял от 1 000 ₽\n\n<blockquote>✅▫️ — первая сотка твоя (друг поменял от 1 000 ₽)\n✅✅ — обе сотки (наменял 10 000 ₽)<\/blockquote>", "kb": [[{"t": "1 / 4", "cb": "noop"}, {"t": "▶️", "cb": "ref:list:2"}], [{"t": "↩️ Назад", "cb": "ref"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "share_card": {"text": "🔐 <b>Меняла<\/b> — меняю крипту и рубли прямо в Telegram.\n\n├ USDT, TON, BTC, ETH ↔ ₽\n├ курс держу минуту\n└ пополнение и вывод по СБП\n\nЗалетай по ссылке 👇", "kb": [[{"t": "🔐 Открыть Менялу", "url": "https://t.me/menyala_bot?start=r843726"}]], "effect": ""}, "set_000": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Молчун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "✓ Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_001": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Норм<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "✓ Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_002": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Болтун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "✓ Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_010": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Молчун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "✓ Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_011": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Норм<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "✓ Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_012": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>выкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Болтун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · выкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "✓ Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_100": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Молчун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "✓ Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_101": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Норм<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "✓ Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_102": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>выкл<\/b>\n🗣 Болтливость Менялы: <b>Болтун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · выкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "✓ Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_110": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Молчун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "✓ Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_111": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Норм<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "✓ Норм", "cb": "set:t:1"}, {"t": "Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "set_112": {"text": "⚙️ <b>Настройки<\/b>\n\n🔔 Уведомления: <b>вкл<\/b>\n🙈 Прятать суммы под спойлер: <b>вкл<\/b>\n🗣 Болтливость Менялы: <b>Болтун<\/b>\n\n<blockquote expandable>Молчун — только цифры, без шуток.\nНорм — шутит в конце сделок и уведомлений.\nБолтун — шутит везде, даже в меню. Ты сам выбрал.<\/blockquote>", "kb": [[{"t": "🔔 Уведомления · вкл", "cb": "set:n"}], [{"t": "🙈 Прятать суммы · вкл", "cb": "set:h"}], [{"t": "Молчун", "cb": "set:t:0"}, {"t": "Норм", "cb": "set:t:1"}, {"t": "✓ Болтун", "cb": "set:t:2"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "sup": {"text": "💬 <b>Поддержка<\/b>\n\nЖивые люди, 24/7. Обычно отвечаем за пару минут.\nНажми «Написать» и опиши вопрос одним сообщением — можно со скрином.\n\n<blockquote expandable>❓ <b>Частые вопросы<\/b>\n\n<b>Сколько идёт пополнение?<\/b>\nПо СБП — секунды, картой — до 15 минут, крипта — после подтверждений сети.\n\n<b>Почему курс поменялся?<\/b>\nДержу его 60 секунд. Не успел — пересчитаю по свежему, без доплат.\n\n<b>Какая комиссия?<\/b>\nОбмен 0,5%. Пополнение 0%. Вывод по СБП 0%, на карту 1%, крипта — комиссия сети.\n\n<b>Отправил монеты не в той сети<\/b>\nНапиши сюда с хешем транзакции — посмотрим, что можно сделать.\n\n<b>Как работает сотка за друга?<\/b>\nДруг поменял от 1 000 ₽ — тебе 100 ₽. Наменял 10 000 ₽ за всё время — ещё 100 ₽.<\/blockquote>", "kb": [[{"t": "✍️ Написать", "cb": "sup:w"}, {"t": "📄 Лимиты", "cb": "lim"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "sup_ask": {"text": "✍️ <b>Пиши — я передам<\/b>\n\nОдно сообщение: что случилось, сумма и время операции. Скрин приветствуется.", "kb": [[{"t": "✖️ Отмена", "cb": "m"}]], "effect": ""}, "sup_sent": {"text": "📨 <b>Передал в поддержку<\/b> · обращение № 3107\n\nОтвет придёт сюда же, в этот чат. Обычно за пару минут.", "kb": [[{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "n_sup": {"text": "💬 <b>Поддержка ответила<\/b> · № 3107\n\n<blockquote>Привет! Перевод уже у банка получателя, дойдёт в течение 10 минут. Если нет — напиши сюда, ускорим.<\/blockquote>", "kb": [[{"t": "✍️ Ответить", "cb": "sup:r:3107"}, {"t": "👍 Всё ок", "cb": "sup:ok:3107"}]], "effect": ""}, "lim": {"text": "📄 <b>Лимиты и комиссии<\/b>\n\n<pre><code class=\"language-комиссии\">Обмен                   0,5%\nПополнение СБП, карта     0%\nВывод по СБП              0%\nВывод на карту            1%\nВывод крипты            сеть\nМин. обмен             100 ₽\nМакс. за раз       300 000 ₽\nКурс держим           60 сек<\/code><\/pre>\nБольше никаких комиссий нигде нет. Мелкого шрифта тоже.", "kb": [[{"t": "↩️ Поддержка", "cb": "sup"}, {"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "help": {"text": "🧭 <b>Как тут всё устроено<\/b>\n\n💱 /exchange — обменять\n📈 /rates — курсы и «следить за курсом»\n👛 /wallet — кошелёк, пополнить, вывести\n🎁 /ref — 100 ₽ за каждого друга\n🧾 /history — история операций\n\n🔐 Кнопка «Сейф» слева от поля ввода открывает приложение — там то же самое, только красивее.", "kb": [[{"t": "💬 Поддержка", "cb": "sup"}, {"t": "📄 Лимиты", "cb": "lim"}], [{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "n_ref_join": {"text": "👋 По твоей ссылке пришёл <b>Вася<\/b>.\n\nКак поменяет от 1 000 ₽ — тебе <b>+100 ₽<\/b>.", "kb": [[{"t": "👥 Мои друзья", "cb": "ref:list:1"}]], "effect": ""}, "n_ref_first": {"text": "🎁 <b>+100 ₽ за Вася<\/b>\n\nОн поменял от 1 000 ₽ — первая сотка твоя.\n└ на реф-балансе: <b>1 800 ₽<\/b>\n\nНаменяет 10 000 ₽ за всё время — придёт ещё одна.", "kb": [[{"t": "💸 Забрать 1 800 ₽", "cb": "ref:claim"}, {"t": "📨 Позвать ещё", "share": ""}]], "effect": "🔥"}, "n_ref_second": {"text": "🎁🎁 <b>Ещё +100 ₽ за Вася<\/b>\n\nОн наменял 10 000 ₽ — обе сотки твои.\n└ на реф-балансе: <b>1 900 ₽<\/b>", "kb": [[{"t": "💸 Забрать 1 900 ₽", "cb": "ref:claim"}]], "effect": "🔥"}, "n_rate": {"text": "🔔 <b>USDT — 94,98 ₽<\/b>\n\nТы просил сказать, когда дойдёт до 95,00 ₽. Дошло.\n└ курс держу минуту после нажатия «Обменять»", "kb": [[{"t": "💱 Обменять USDT", "cb": "x:b:usdt"}, {"t": "📈 Курсы", "cb": "rates"}]], "effect": ""}, "n_check": {"text": "🛡 <b>Операция на проверке<\/b>\n\nЭто стандартная проверка, обычно до 30 минут. Деньги в безопасности и никуда не денутся.\nКак закончу — сразу напишу.", "kb": [[{"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "n_wd_fail": {"text": "❌ <b>Вывод не прошёл<\/b>\n\nПричина: банк получателя не принял перевод.\n<b>5 000,00 ₽<\/b> вернул на баланс — деньги на месте.", "kb": [[{"t": "🔁 Попробовать снова", "cb": "wd"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "n_maint": {"text": "🔧 <b>Меняла на техобслуживании<\/b> до 04:00 МСК\n\nОбмены и выводы на паузе. Деньги в сейфе, всё под замком.\nКак вернусь — напишу.", "kb": [], "effect": ""}, "n_back": {"text": "🔐 Давно не заходил.\n\nКурс USDT сегодня <b>96,50 ₽<\/b>. Сейф на месте, зуб начищен.", "kb": [[{"t": "📈 Курсы", "cb": "rates"}, {"t": "🔕 Не напоминать", "cb": "set:n"}]], "effect": ""}, "n_seen_0": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▱▱▱▱▱▱▱▱▱▱  0/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_3": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▱▱▱▱▱▱▱▱  3/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_7": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▰▰▱▱▱▱▱▱  7/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_11": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▰▰▰▰▱▱▱▱  11/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_15": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▰▰▰▰▰▰▱▱  15/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_18": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▰▰▰▰▰▰▰▱  18/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_seen_20": {"text": "👀 <b>Вижу 50,00 USDT<\/b> в сети TRON (TRC-20)\n\n▰▰▰▰▰▰▰▰▰▰  20/20\n└ жду подтверждений, обычно 1–3 минуты", "kb": [], "effect": ""}, "n_dep_usdt": {"text": "📥 <b>+50,00 USDT<\/b> в сейфе\n\nПополнение · сеть TRON — зачислено.\n└ баланс USDT: <b>362,35 USDT<\/b>\n\n<i>Ням. Вкусно.<\/i>", "kb": [[{"t": "💱 Обменять", "cb": "x"}, {"t": "👛 Кошелёк", "cb": "wal"}]], "effect": ""}, "e_unknown": {"text": "🤔 Не понял. Жми кнопки — так быстрее.\n\n<i>Я сейф, а не собеседник.<\/i>", "kb": [[{"t": "🏠 Меню", "cb": "m"}]], "effect": ""}, "e_pay_timeout": {"text": "⌛️ <b>Оплата не пришла за 30 минут<\/b> — заявку закрыл.\n\nЕсли деньги всё-таки списались, напиши в поддержку — разберёмся и зачислим.", "kb": [[{"t": "📥 Новая заявка", "cb": "dep"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}, "e_crash": {"text": "😵 <b>Что-то заклинило<\/b>\n\nУже чиню. Деньги в сейфе — с ними всё в порядке.\nПопробуй через минуту.", "kb": [[{"t": "🔁 Ещё раз", "cb": "m"}, {"t": "💬 Поддержка", "cb": "sup"}]], "effect": ""}}, "flow": {"x:g:rub": {"edit": "ex_get_rub"}, "x:g:usdt": {"edit": "ex_get_usdt"}, "x:g:ton": {"edit": "ex_get_ton"}, "x:g:btc": {"toast": "На балансе 0 BTC — сначала пополни 📥"}, "x:g:eth": {"toast": "На балансе 0 ETH — сначала пополни 📥"}, "x:o:rub:usdt": {"edit": "ex_amount_rub_usdt", "ctx": "rub-usdt"}, "x:a:1000@rub-usdt": {"edit": "q_rubusdt1000"}, "x:ok:rubusdt1000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubusdt1000", "send": "done_rubusdt1000"}, "x:a:5000@rub-usdt": {"edit": "q_rubusdt5000"}, "x:ok:rubusdt5000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubusdt5000", "send": "done_rubusdt5000"}, "x:a:10000@rub-usdt": {"edit": "q_rubusdt10000"}, "x:ok:rubusdt10000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubusdt10000", "send": "done_rubusdt10000"}, "x:all@rub-usdt": {"edit": "q_rubusdt164250"}, "x:ok:rubusdt164250": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubusdt164250", "send": "done_rubusdt164250"}, "x:edit@rub-usdt": {"edit": "ex_amount_rub_usdt"}, "x:o:rub:ton": {"edit": "ex_amount_rub_ton", "ctx": "rub-ton"}, "x:a:1000@rub-ton": {"edit": "q_rubton1000"}, "x:ok:rubton1000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubton1000", "send": "done_rubton1000"}, "x:a:5000@rub-ton": {"edit": "q_rubton5000"}, "x:ok:rubton5000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubton5000", "send": "done_rubton5000"}, "x:a:10000@rub-ton": {"edit": "q_rubton10000"}, "x:ok:rubton10000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubton10000", "send": "done_rubton10000"}, "x:all@rub-ton": {"edit": "q_rubton164250"}, "x:ok:rubton164250": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubton164250", "send": "done_rubton164250"}, "x:edit@rub-ton": {"edit": "ex_amount_rub_ton"}, "x:o:rub:btc": {"edit": "ex_amount_rub_btc", "ctx": "rub-btc"}, "x:a:1000@rub-btc": {"edit": "q_rubbtc1000"}, "x:ok:rubbtc1000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubbtc1000", "send": "done_rubbtc1000"}, "x:a:5000@rub-btc": {"edit": "q_rubbtc5000"}, "x:ok:rubbtc5000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubbtc5000", "send": "done_rubbtc5000"}, "x:a:10000@rub-btc": {"edit": "q_rubbtc10000"}, "x:ok:rubbtc10000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubbtc10000", "send": "done_rubbtc10000"}, "x:all@rub-btc": {"edit": "q_rubbtc164250"}, "x:ok:rubbtc164250": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubbtc164250", "send": "done_rubbtc164250"}, "x:edit@rub-btc": {"edit": "ex_amount_rub_btc"}, "x:o:rub:eth": {"edit": "ex_amount_rub_eth", "ctx": "rub-eth"}, "x:a:1000@rub-eth": {"edit": "q_rubeth1000"}, "x:ok:rubeth1000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubeth1000", "send": "done_rubeth1000"}, "x:a:5000@rub-eth": {"edit": "q_rubeth5000"}, "x:ok:rubeth5000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubeth5000", "send": "done_rubeth5000"}, "x:a:10000@rub-eth": {"edit": "q_rubeth10000"}, "x:ok:rubeth10000": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubeth10000", "send": "done_rubeth10000"}, "x:all@rub-eth": {"edit": "q_rubeth164250"}, "x:ok:rubeth164250": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubeth164250", "send": "done_rubeth164250"}, "x:edit@rub-eth": {"edit": "ex_amount_rub_eth"}, "x:o:usdt:rub": {"edit": "ex_amount_usdt_rub", "ctx": "usdt-rub"}, "x:p:25@usdt-rub": {"edit": "q_usdtrub78"}, "x:ok:usdtrub78": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtrub78", "send": "done_usdtrub78"}, "x:p:50@usdt-rub": {"edit": "q_usdtrub156"}, "x:ok:usdtrub156": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtrub156", "send": "done_usdtrub156"}, "x:p:75@usdt-rub": {"edit": "q_usdtrub234"}, "x:ok:usdtrub234": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtrub234", "send": "done_usdtrub234"}, "x:all@usdt-rub": {"edit": "q_usdtrub312"}, "x:ok:usdtrub312": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtrub312", "send": "done_usdtrub312"}, "x:edit@usdt-rub": {"edit": "ex_amount_usdt_rub"}, "x:o:ton:rub": {"edit": "ex_amount_ton_rub", "ctx": "ton-rub"}, "x:p:25@ton-rub": {"edit": "q_tonrub4"}, "x:ok:tonrub4": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonrub4", "send": "done_tonrub4"}, "x:p:50@ton-rub": {"edit": "q_tonrub9"}, "x:ok:tonrub9": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonrub9", "send": "done_tonrub9"}, "x:p:75@ton-rub": {"edit": "q_tonrub13"}, "x:ok:tonrub13": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonrub13", "send": "done_tonrub13"}, "x:all@ton-rub": {"edit": "q_tonrub18"}, "x:ok:tonrub18": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonrub18", "send": "done_tonrub18"}, "x:edit@ton-rub": {"edit": "ex_amount_ton_rub"}, "x:o:usdt:ton": {"edit": "ex_amount_usdt_ton", "ctx": "usdt-ton"}, "x:p:25@usdt-ton": {"edit": "q_usdtton78"}, "x:ok:usdtton78": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtton78", "send": "done_usdtton78"}, "x:p:50@usdt-ton": {"edit": "q_usdtton156"}, "x:ok:usdtton156": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtton156", "send": "done_usdtton156"}, "x:p:75@usdt-ton": {"edit": "q_usdtton234"}, "x:ok:usdtton234": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtton234", "send": "done_usdtton234"}, "x:all@usdt-ton": {"edit": "q_usdtton312"}, "x:ok:usdtton312": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtton312", "send": "done_usdtton312"}, "x:edit@usdt-ton": {"edit": "ex_amount_usdt_ton"}, "x:o:ton:usdt": {"edit": "ex_amount_ton_usdt", "ctx": "ton-usdt"}, "x:p:25@ton-usdt": {"edit": "q_tonusdt4"}, "x:ok:tonusdt4": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonusdt4", "send": "done_tonusdt4"}, "x:p:50@ton-usdt": {"edit": "q_tonusdt9"}, "x:ok:tonusdt9": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonusdt9", "send": "done_tonusdt9"}, "x:p:75@ton-usdt": {"edit": "q_tonusdt13"}, "x:ok:tonusdt13": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonusdt13", "send": "done_tonusdt13"}, "x:all@ton-usdt": {"edit": "q_tonusdt18"}, "x:ok:tonusdt18": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonusdt18", "send": "done_tonusdt18"}, "x:edit@ton-usdt": {"edit": "ex_amount_ton_usdt"}, "x:o:usdt:btc": {"edit": "ex_amount_usdt_btc", "ctx": "usdt-btc"}, "x:p:25@usdt-btc": {"edit": "q_usdtbtc78"}, "x:ok:usdtbtc78": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtbtc78", "send": "done_usdtbtc78"}, "x:p:50@usdt-btc": {"edit": "q_usdtbtc156"}, "x:ok:usdtbtc156": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtbtc156", "send": "done_usdtbtc156"}, "x:p:75@usdt-btc": {"edit": "q_usdtbtc234"}, "x:ok:usdtbtc234": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtbtc234", "send": "done_usdtbtc234"}, "x:all@usdt-btc": {"edit": "q_usdtbtc312"}, "x:ok:usdtbtc312": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdtbtc312", "send": "done_usdtbtc312"}, "x:edit@usdt-btc": {"edit": "ex_amount_usdt_btc"}, "x:o:ton:btc": {"edit": "ex_amount_ton_btc", "ctx": "ton-btc"}, "x:p:25@ton-btc": {"edit": "q_tonbtc4"}, "x:ok:tonbtc4": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonbtc4", "send": "done_tonbtc4"}, "x:p:50@ton-btc": {"edit": "q_tonbtc9"}, "x:ok:tonbtc9": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonbtc9", "send": "done_tonbtc9"}, "x:p:75@ton-btc": {"edit": "q_tonbtc13"}, "x:ok:tonbtc13": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonbtc13", "send": "done_tonbtc13"}, "x:all@ton-btc": {"edit": "q_tonbtc18"}, "x:ok:tonbtc18": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_tonbtc18", "send": "done_tonbtc18"}, "x:edit@ton-btc": {"edit": "ex_amount_ton_btc"}, "x:o:usdt:eth": {"edit": "ex_amount_usdt_eth", "ctx": "usdt-eth"}, "x:p:25@usdt-eth": {"edit": "q_usdteth78"}, "x:ok:usdteth78": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdteth78", "send": "done_usdteth78"}, "x:p:50@usdt-eth": {"edit": "q_usdteth156"}, "x:ok:usdteth156": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdteth156", "send": "done_usdteth156"}, "x:p:75@usdt-eth": {"edit": "q_usdteth234"}, "x:ok:usdteth234": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdteth234", "send": "done_usdteth234"}, "x:all@usdt-eth": {"edit": "q_usdteth312"}, "x:ok:usdteth312": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_usdteth312", "send": "done_usdteth312"}, "x:edit@usdt-eth": {"edit": "ex_amount_usdt_eth"}, "x:o:ton:eth": {"edit": "ex_amount_ton_eth", "ctx": "ton-eth"}, "x:p:25@ton-eth": {"edit": "q_toneth4"}, "x:ok:toneth4": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_toneth4", "send": "done_toneth4"}, "x:p:50@ton-eth": {"edit": "q_toneth9"}, "x:ok:toneth9": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_toneth9", "send": "done_toneth9"}, "x:p:75@ton-eth": {"edit": "q_toneth13"}, "x:ok:toneth13": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_toneth13", "send": "done_toneth13"}, "x:all@ton-eth": {"edit": "q_toneth18"}, "x:ok:toneth18": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_toneth18", "send": "done_toneth18"}, "x:edit@ton-eth": {"edit": "ex_amount_ton_eth"}, "x:ok:rubusdt5000n": {"steps": ["ex_s0", "ex_s1", "ex_s2"], "close": "closed_rubusdt5000n", "send": "done_rubusdt5000n"}, "wd:btc": {"toast": "В превью вывод крипты показан на USDT и TON"}, "wd:eth": {"toast": "В превью вывод крипты показан на USDT и TON"}, "x:b:usdt": {"edit": "ex_amount_rub_usdt", "ctx": "rub-usdt"}, "x:s:usdt": {"edit": "ex_amount_usdt_rub", "ctx": "usdt-rub"}, "x:b:ton": {"edit": "ex_amount_rub_ton", "ctx": "rub-ton"}, "x:a:1000": {"edit": "q_rubusdt1000", "ctx": "rub-usdt"}, "dep:sbp": {"edit": "dep_amount_sbp"}, "dep:sbp:1000": {"edit": "dep_pay_sbp_1000"}, "dep:sbp:5000": {"edit": "dep_pay_sbp_5000"}, "dep:sbp:10000": {"edit": "dep_pay_sbp_10000"}, "dep:card": {"edit": "dep_amount_card"}, "dep:card:1000": {"edit": "dep_pay_card_1000"}, "dep:card:5000": {"edit": "dep_pay_card_5000"}, "dep:card:10000": {"edit": "dep_pay_card_10000"}, "dep:usdt": {"edit": "dep_usdt"}, "dep:qr:usdt": {"toast": "Пришлю картинкой с QR — сканируй из кошелька 🔳"}, "dep:ton": {"edit": "dep_ton"}, "dep:qr:ton": {"toast": "Пришлю картинкой с QR — сканируй из кошелька 🔳"}, "dep:btc": {"edit": "dep_btc"}, "dep:qr:btc": {"toast": "Пришлю картинкой с QR — сканируй из кошелька 🔳"}, "dep:eth": {"edit": "dep_eth"}, "dep:qr:eth": {"toast": "Пришлю картинкой с QR — сканируй из кошелька 🔳"}, "dep": {"edit": "dep"}, "dep:cancel": {"edit": "dep", "toast": "Заявку отменил"}, "wd": {"edit": "wd"}, "wd:rub": {"edit": "wd"}, "wd:sbp": {"edit": "wd_amount_sbp", "ctx": "sbp"}, "wd:all:rub@sbp": {"send": "wd_dest_sbp", "toast": "В превью покажу на 5 000 ₽"}, "wd:card": {"edit": "wd_amount_card", "ctx": "card"}, "wd:all:rub@card": {"send": "wd_dest_card", "toast": "В превью покажу на 5 000 ₽"}, "wd:bank:0": {"edit": "wd_ok_sbp_0"}, "wd:bank:1": {"edit": "wd_ok_sbp_1"}, "wd:bank:2": {"edit": "wd_ok_sbp_2"}, "wd:bank:3": {"edit": "wd_ok_sbp_3"}, "wd:bank:4": {"edit": "wd_ok_sbp_4"}, "wd:bank:5": {"edit": "wd_ok_sbp_5"}, "wd:bank:other": {"toast": "Напиши название банка — найду"}, "wd:ok@sbp": {"edit": "wd_sent_sbp", "later": "n_wd_sbp"}, "wd:ok@card": {"edit": "wd_sent_card", "later": "n_wd_card"}, "wd:usdt": {"edit": "wd_amount_usdt", "ctx": "usdt"}, "wd:all:usdt@usdt": {"send": "wd_dest_usdt", "toast": "В превью покажу на 100 USDT"}, "wd:ok@usdt": {"edit": "wd_sent_usdt", "later": "n_wd_usdt"}, "wd:ton": {"edit": "wd_amount_ton", "ctx": "ton"}, "wd:all:ton@ton": {"send": "wd_dest_ton", "toast": "В превью покажу на 10 TON"}, "wd:ok@ton": {"edit": "wd_sent_ton", "later": "n_wd_ton"}, "wal": {"edit": "$wallet"}, "hist:1": {"edit": "hist1"}, "hist:2": {"edit": "hist2"}, "noop": {}, "ref": {"edit": "$ref"}, "ref:list:1": {"edit": "ref_friends"}, "ref:list:2": {"toast": "В превью показана одна страница"}, "set": {"edit": "$set"}, "sup": {"edit": "sup"}, "sup:w": {"edit": "sup_ask"}, "sup:r:3107": {"send": "sup_ask"}, "sup:ok:3107": {"toast": "Рад помочь 🤝"}, "lim": {"edit": "lim"}, "help": {"edit": "help"}, "m": {"edit": "$menu"}, "x": {"edit": "ex_give"}, "rates": {"edit": "rates"}, "alert": {"edit": "alert_ask"}, "alert:del:usdt": {"edit": "rates", "toast": "Больше не слежу 🗑"}, "alert:del:ton": {"edit": "rates", "toast": "Больше не слежу 🗑"}}, "inp": {"alert_ask": [{"t": "USDT 95", "go": "alert_set"}, {"t": "TON 280", "go": "alert_set_ton"}], "ex_amount_rub_usdt": [{"t": "1000", "go": "q_rubusdt1000", "edit": false}, {"t": "5000", "go": "q_rubusdt5000", "edit": false}, {"t": "10000", "go": "q_rubusdt10000", "edit": false}, {"t": "50", "go": "e_min"}, {"t": "999999", "go": "e_over_rub"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_rub_ton": [{"t": "1000", "go": "q_rubton1000", "edit": false}, {"t": "5000", "go": "q_rubton5000", "edit": false}, {"t": "10000", "go": "q_rubton10000", "edit": false}, {"t": "50", "go": "e_min"}, {"t": "999999", "go": "e_over_rub"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_rub_btc": [{"t": "1000", "go": "q_rubbtc1000", "edit": false}, {"t": "5000", "go": "q_rubbtc5000", "edit": false}, {"t": "10000", "go": "q_rubbtc10000", "edit": false}, {"t": "50", "go": "e_min"}, {"t": "999999", "go": "e_over_rub"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_rub_eth": [{"t": "1000", "go": "q_rubeth1000", "edit": false}, {"t": "5000", "go": "q_rubeth5000", "edit": false}, {"t": "10000", "go": "q_rubeth10000", "edit": false}, {"t": "50", "go": "e_min"}, {"t": "999999", "go": "e_over_rub"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_usdt_rub": [{"t": "78,09", "go": "q_usdtrub78", "edit": false}, {"t": "156,18", "go": "q_usdtrub156", "edit": false}, {"t": "234,26", "go": "q_usdtrub234", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_usdt"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_ton_rub": [{"t": "4,60", "go": "q_tonrub4", "edit": false}, {"t": "9,20", "go": "q_tonrub9", "edit": false}, {"t": "13,80", "go": "q_tonrub13", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_ton"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_usdt_ton": [{"t": "78,09", "go": "q_usdtton78", "edit": false}, {"t": "156,18", "go": "q_usdtton156", "edit": false}, {"t": "234,26", "go": "q_usdtton234", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_usdt"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_ton_usdt": [{"t": "4,60", "go": "q_tonusdt4", "edit": false}, {"t": "9,20", "go": "q_tonusdt9", "edit": false}, {"t": "13,80", "go": "q_tonusdt13", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_ton"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_usdt_btc": [{"t": "78,09", "go": "q_usdtbtc78", "edit": false}, {"t": "156,18", "go": "q_usdtbtc156", "edit": false}, {"t": "234,26", "go": "q_usdtbtc234", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_usdt"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_ton_btc": [{"t": "4,60", "go": "q_tonbtc4", "edit": false}, {"t": "9,20", "go": "q_tonbtc9", "edit": false}, {"t": "13,80", "go": "q_tonbtc13", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_ton"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_usdt_eth": [{"t": "78,09", "go": "q_usdteth78", "edit": false}, {"t": "156,18", "go": "q_usdteth156", "edit": false}, {"t": "234,26", "go": "q_usdteth234", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_usdt"}, {"t": "пять тыщ", "go": "e_nan"}], "ex_amount_ton_eth": [{"t": "4,60", "go": "q_toneth4", "edit": false}, {"t": "9,20", "go": "q_toneth9", "edit": false}, {"t": "13,80", "go": "q_toneth13", "edit": false}, {"t": "0,01", "go": "e_min"}, {"t": "999999", "go": "e_over_ton"}, {"t": "пять тыщ", "go": "e_nan"}], "q_rubusdt5000": [{"t": "⌛️ подождать минуту", "go": "q_expired", "edit": true, "silent": true}], "dep_amount_sbp": [{"t": "1000", "go": "dep_pay_sbp_1000"}, {"t": "5000", "go": "dep_pay_sbp_5000"}, {"t": "10000", "go": "dep_pay_sbp_10000"}, {"t": "500000", "go": "e_limit"}], "dep_amount_card": [{"t": "1000", "go": "dep_pay_card_1000"}, {"t": "5000", "go": "dep_pay_card_5000"}, {"t": "10000", "go": "dep_pay_card_10000"}, {"t": "500000", "go": "e_limit"}], "wd_amount_sbp": [{"t": "5000", "go": "wd_dest_sbp"}, {"t": "999999", "go": "e_over_rub"}], "wd_amount_card": [{"t": "5000", "go": "wd_dest_card"}, {"t": "999999", "go": "e_over_rub"}], "wd_dest_sbp": [{"t": "+7 900 123-45-67", "go": "wd_bank"}], "wd_dest_card": [{"t": "2200 7012 3456 7890", "go": "wd_ok_card"}], "wd_amount_usdt": [{"t": "100", "go": "wd_dest_usdt"}, {"t": "999999", "go": "e_over_usdt"}], "wd_dest_usdt": [{"t": "TQ7mVb4kY2nP8xR1sLc9Hd3FwJ6eZu5AqX", "go": "wd_ok_usdt"}, {"t": "привет", "go": "e_addr_usdt"}, {"t": "0x7a3F9c21B84e0D5f6A1c9E3b72D4f08C1e6B9a54", "go": "e_net_usdt"}], "wd_amount_ton": [{"t": "10", "go": "wd_dest_ton"}, {"t": "999999", "go": "e_over_ton"}], "wd_dest_ton": [{"t": "UQBv3kZ9xq2N7mLp4HsY8dWc1tRf6eJa0uGiK5oPn2Vb", "go": "wd_ok_ton"}, {"t": "привет", "go": "e_addr_ton"}], "sup_ask": [{"t": "Вывод на СБП 5 000 ₽ в 08:30, пока не пришёл", "go": "sup_sent", "later": "n_sup"}]}, "url": {"https://pay.menyala.example/sbp/1000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_sbp_1000"}, "https://pay.menyala.example/sbp/5000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_sbp_5000"}, "https://pay.menyala.example/sbp/10000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_sbp_10000"}, "https://pay.menyala.example/card/1000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_card_1000"}, "https://pay.menyala.example/card/5000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_card_5000"}, "https://pay.menyala.example/card/10000": {"toast": "Открываю банк… в превью оплата имитируется", "later": "n_dep_card_10000"}}, "cmd": {"start": "$menu", "exchange": "ex_give", "rates": "rates", "wallet": "$wallet", "ref": "$ref", "history": "hist1", "help": "help"}, "scen": [{"id": "start", "e": "👋", "name": "Первый запуск", "init": [{"mode": "empty"}]}, {"id": "menu", "e": "🏠", "name": "Меню", "init": [{"user": "/start"}, {"bot": "$menu"}]}, {"id": "x", "e": "💱", "name": "Обмен", "init": [{"user": "/exchange"}, {"bot": "ex_give"}]}, {"id": "rates", "e": "📈", "name": "Курсы", "init": [{"user": "/rates"}, {"bot": "rates"}]}, {"id": "dep", "e": "📥", "name": "Пополнение", "init": [{"bot": "dep"}]}, {"id": "wd", "e": "📤", "name": "Вывод", "init": [{"bot": "wd"}]}, {"id": "wal", "e": "👛", "name": "Кошелёк и история", "init": [{"user": "/wallet"}, {"bot": "$wallet"}, {"user": "/history"}, {"bot": "hist1"}]}, {"id": "ref", "e": "🎁", "name": "Сотка за друга", "init": [{"user": "/ref"}, {"bot": "$ref"}]}, {"id": "notif", "e": "🔔", "name": "Уведомления", "init": [{"service": "Бот пишет сам — когда что-то случилось"}, {"bot": "n_ref_join"}, {"bot": "n_ref_first"}, {"anim": ["n_seen_0", "n_seen_3", "n_seen_7", "n_seen_11", "n_seen_15", "n_seen_18", "n_seen_20", "n_dep_usdt"]}, {"bot": "n_rate"}, {"bot": "n_check"}, {"bot": "n_wd_fail"}, {"bot": "n_sup"}, {"bot": "n_ref_second"}, {"service": "Редкие"}, {"bot": "n_maint"}, {"bot": "n_back"}]}, {"id": "err", "e": "🧯", "name": "Ошибки", "init": [{"user": "привет, как дела?"}, {"bot": "e_unknown"}, {"service": "Ввод суммы"}, {"user": "пять тыщ"}, {"bot": "e_nan"}, {"user": "50"}, {"bot": "e_min"}, {"user": "999999"}, {"bot": "e_over_rub"}, {"service": "Вывод крипты"}, {"user": "привет"}, {"bot": "e_addr_usdt"}, {"user": "0x7a3F9c21B84e0D5f6A1c9E3b72D4f08C1e6B9a54"}, {"bot": "e_net_usdt"}, {"service": "Лимиты и оплата"}, {"user": "500000"}, {"bot": "e_limit"}, {"bot": "e_pay_timeout"}, {"bot": "e_crash"}, {"service": "Всплывашки на кнопках"}, {"toast": "Это старое сообщение. Открыл свежее меню 👇"}, {"toast": "Полегче, я считаю 🧮"}, {"toast": "Уже меняю, не торопи ⏳"}, {"toast": "Курс тот же. Я проверил 👁"}, {"toast": "Пока пусто. Зови друзей — сотки придут сами 🎁"}]}, {"id": "set", "e": "⚙️", "name": "Настройки и помощь", "init": [{"bot": "$set"}, {"user": "/help"}, {"bot": "help"}]}, {"id": "profile", "e": "🪪", "name": "Профиль бота", "init": [{"mode": "profile"}]}], "profile": {"name": "Меняла · обмен крипты", "bot": "menyala_bot", "short": "Меняю рубли на крипту и обратно. Курс держу минуту, сдачу даю до копейки. 100 ₽ за друга.", "desc": "Привет. Я Меняла — стальной сейф с одним глазом и золотым зубом.\n\n💱 Меняю ₽ ↔ USDT, TON, BTC, ETH\n⏱ Курс держу 60 секунд\n⚡️ Пополнение и вывод по СБП\n🎁 100 ₽ за каждого друга\n\nЖми «Старт» — открою сейф.", "commands": [["start", "Главное меню"], ["exchange", "Обменять"], ["rates", "Курсы"], ["wallet", "Кошелёк"], ["ref", "100 ₽ за друга"], ["history", "История"], ["help", "Помощь и поддержка"]], "menu": "Сейф", "inline": "Позвать друга в Менялу", "father": [["/setname", "Меняла · обмен крипты"], ["/setuserpic", "морда Менялы на синем фоне, 640×640"], ["/setabouttext", "Меняю рубли на крипту и обратно. Курс держу минуту, сдачу даю до копейки. 100 ₽ за друга."], ["/setdescription", "текст DESCRIPTION — виден в пустом чате"], ["/setdescriptionpic", "гифка: Меняла падает сверху и крутит диск, 640×360"], ["/setcommands", "список COMMANDS"], ["/setinline", "Позвать друга в Менялу"], ["/setinlinefeedback", "Enabled — чтобы считать, кто кого позвал"], ["menu button", "через API setChatMenuButton: «Сейф» → мини-апп"]]}, "toasts": {"rates": "Свежий курс подъехал 🔄", "ratesSame": "Курс тот же. Я проверил 👁", "claimEmpty": "Пока пусто. Зови друзей — сотки придут сами 🎁", "busy": "Уже меняю, не торопи ⏳", "talk": ["Меняла молчит. Обиделся, но молчит 🤐", "Меняла говорит по делу 🗣", "Меняла не заткнётся. Ты сам выбрал 📢"]}, "app": "../v2/"}</script>
+<script>
+(() => {
+const gsap = window.gsap;
+// МЕНЯЛА — стальной сейф-циклоп.
+// Глаз = кодовый диск, бровь = два стальных бруска, рот = купюроприёмник, золотой зуб.
+// Всё на SVG + GSAP, без внешних ассетов.
+
+let uid = 0;
+
+const MOODS = {
+  tough: { l: 10,  r: -10, y: 0,  lid: 0.27, low: 0 },
+  calm:  { l: 4,   r: -4,  y: 0,  lid: 0.14, low: 0 },
+  wow:   { l: -10, r: 10,  y: -7, lid: 0,    low: 0 },
+  happy: { l: -7,  r: 7,   y: -4, lid: 0.05, low: 0.42 },
+  angry: { l: 21,  r: -21, y: 3,  lid: 0.38, low: 0.1 },
+  focus: { l: 15,  r: -15, y: 2,  lid: 0.44, low: 0.14 },
+  closed:{ l: 3,   r: -3,  y: 3,  lid: 1,    low: 0 },
+};
+
+const EYE = { x: 100, y: 94, r: 31 };
+
+function ticks() {
+  let s = '';
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    const major = i % 6 === 0;
+    const r1 = major ? 22.5 : 25, r2 = 28.5;
+    const p = (r) => [(EYE.x + Math.sin(a) * r).toFixed(2), (EYE.y - Math.cos(a) * r).toFixed(2)];
+    const [x1, y1] = p(r1), [x2, y2] = p(r2);
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${major ? '#F2B94B' : '#56617A'}" stroke-width="${major ? 2.4 : 1.4}" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+
+function tpl(id) {
+  return `
+<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Меняла">
+  <defs>
+    <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E3E8F0"/><stop offset=".42" stop-color="#A9B3C6"/><stop offset="1" stop-color="#535E75"/>
+    </linearGradient>
+    <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C3CBD9"/><stop offset="1" stop-color="#7C879C"/>
+    </linearGradient>
+    <linearGradient id="${id}l" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B5BED0"/><stop offset="1" stop-color="#8994AA"/>
+    </linearGradient>
+    <radialGradient id="${id}k" cx=".36" cy=".3" r=".85">
+      <stop offset="0" stop-color="#F7F9FC"/><stop offset=".45" stop-color="#B3BCCD"/><stop offset="1" stop-color="#555F75"/>
+    </radialGradient>
+    <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFEBAE"/><stop offset=".5" stop-color="#F2B94B"/><stop offset="1" stop-color="#A86C14"/>
+    </linearGradient>
+    <linearGradient id="${id}m" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#07090F"/><stop offset="1" stop-color="#1D2333"/>
+    </linearGradient>
+    <clipPath id="${id}ce"><circle cx="${EYE.x}" cy="${EYE.y}" r="${EYE.r - 1}"/></clipPath>
+    <clipPath id="${id}cb"><rect x="56" y="143" width="88" height="60"/></clipPath>
+    <clipPath id="${id}cc"><rect x="60" y="-60" width="80" height="88"/></clipPath>
+  </defs>
+
+  <g class="m-shadow-f"><ellipse class="m-shadow" cx="100" cy="199" rx="56" ry="7" fill="#000" opacity=".32"/></g>
+
+  <g class="m-float"><g class="m-rig">
+    <!-- coin dropping into the head slot -->
+    <g clip-path="url(#${id}cc)">
+      <g class="m-coin" opacity="0">
+        <ellipse cx="100" cy="8" rx="9" ry="9" fill="url(#${id}g)" stroke="#9A6512" stroke-width="1.2"/>
+        <path d="M100 3.5v9M97.2 5.6h4.2a1.8 1.8 0 0 1 0 3.6h-3.2" fill="none" stroke="#9A6512" stroke-width="1.4" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- feet -->
+    <rect x="57" y="170" width="26" height="21" rx="8" fill="#2E3648"/>
+    <rect x="117" y="170" width="26" height="21" rx="8" fill="#2E3648"/>
+    <rect x="60" y="172" width="20" height="4" rx="2" fill="#fff" opacity=".08"/>
+    <rect x="120" y="172" width="20" height="4" rx="2" fill="#fff" opacity=".08"/>
+
+    <!-- hinges -->
+    <rect x="18" y="62" width="12" height="26" rx="5" fill="#3B4458"/>
+    <rect x="18" y="122" width="12" height="26" rx="5" fill="#3B4458"/>
+
+    <!-- body -->
+    <rect x="26" y="30" width="148" height="150" rx="38" fill="url(#${id}b)"/>
+    <rect x="26.75" y="30.75" width="146.5" height="148.5" rx="37.3" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.5"/>
+
+    <!-- head slot -->
+    <rect x="77" y="22" width="46" height="13" rx="6.5" fill="#4C566B"/>
+    <rect x="83" y="25.5" width="34" height="6" rx="3" fill="#121624"/>
+
+    <!-- door -->
+    <rect x="40" y="44" width="120" height="122" rx="28" fill="url(#${id}d)"/>
+    <rect x="40.75" y="44.75" width="118.5" height="120.5" rx="27.3" fill="none" stroke="#1E2536" stroke-opacity=".28" stroke-width="1.5"/>
+    <rect x="42" y="46" width="116" height="118" rx="26" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1"/>
+
+    <!-- rivets -->
+    <g fill="url(#${id}k)" stroke="#3E475C" stroke-width=".8">
+      <circle cx="54" cy="58" r="3.4"/><circle cx="146" cy="58" r="3.4"/>
+      <circle cx="54" cy="152" r="3.4"/><circle cx="146" cy="152" r="3.4"/>
+    </g>
+
+    <!-- brow -->
+    <g class="m-brow">
+      <rect class="m-brow-l" x="61" y="49" width="42" height="10.5" rx="5.25" fill="#1F2636"/>
+      <rect class="m-brow-r" x="97" y="49" width="42" height="10.5" rx="5.25" fill="#1F2636"/>
+    </g>
+
+    <!-- eye / dial -->
+    <g class="m-eye">
+      <circle cx="${EYE.x}" cy="${EYE.y}" r="${EYE.r}" fill="#181D2B"/>
+      ${ticks()}
+      <g class="m-pupil">
+        <g class="m-knob">
+          <circle cx="${EYE.x}" cy="${EYE.y}" r="18.5" fill="url(#${id}k)"/>
+          <circle cx="${EYE.x}" cy="${EYE.y}" r="13" fill="none" stroke="#56607A" stroke-opacity=".55" stroke-width="1.2"/>
+          <rect x="98.1" y="77.5" width="3.8" height="8" rx="1.9" fill="#181D2B"/>
+        </g>
+        <circle cx="93.5" cy="87.5" r="3.3" fill="#fff" opacity=".9"/>
+      </g>
+      <g clip-path="url(#${id}ce)">
+        <g class="m-lid">
+          <rect x="${EYE.x - 34}" y="${EYE.y - 32}" width="68" height="64" fill="url(#${id}l)"/>
+          <rect x="${EYE.x - 34}" y="${EYE.y + 29}" width="68" height="3" fill="#222A3B"/>
+        </g>
+        <g class="m-lid-low">
+          <rect x="${EYE.x - 34}" y="${EYE.y - 32}" width="68" height="64" fill="url(#${id}l)"/>
+          <rect x="${EYE.x - 34}" y="${EYE.y - 32}" width="68" height="3" fill="#222A3B"/>
+        </g>
+      </g>
+      <circle cx="${EYE.x}" cy="${EYE.y}" r="${EYE.r}" fill="none" stroke="#232A3A" stroke-width="3.5"/>
+      <circle cx="${EYE.x}" cy="${EYE.y}" r="${EYE.r + 2.6}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1"/>
+    </g>
+
+    <!-- mouth: bill slot -->
+    <g class="m-mouth">
+      <g clip-path="url(#${id}cb)">
+        <g class="m-bill">
+          <rect x="81" y="143" width="38" height="25" rx="3" fill="#8EDCAE"/>
+          <rect x="84" y="146" width="32" height="19" rx="2" fill="none" stroke="#3C8F60" stroke-width="1.2"/>
+          <circle cx="100" cy="155.5" r="4.6" fill="none" stroke="#3C8F60" stroke-width="1.2"/>
+        </g>
+      </g>
+      <rect x="67" y="136" width="66" height="14" rx="7" fill="url(#${id}m)"/>
+      <rect x="67.5" y="136.5" width="65" height="13" rx="6.5" fill="none" stroke="#fff" stroke-opacity=".12"/>
+      <rect class="m-tooth" x="110" y="136.6" width="10" height="8" rx="2" fill="url(#${id}g)"/>
+      <path class="m-glint" d="M0-7L1.3-1.3 7 0 1.3 1.3 0 7-1.3 1.3-7 0-1.3-1.3z" transform="translate(121 137)" fill="#fff"/>
+    </g>
+  </g></g>
+</svg>`;
+}
+
+function createMascot(host) {
+  const id = 'mz' + ++uid + '-';
+  host.innerHTML = tpl(id);
+  const svg = host.firstElementChild;
+  const q = (s) => svg.querySelector(s);
+  const el = {
+    float: q('.m-float'), rig: q('.m-rig'), shadowF: q('.m-shadow-f'), shadow: q('.m-shadow'),
+    brow: q('.m-brow'), browL: q('.m-brow-l'), browR: q('.m-brow-r'),
+    pupil: q('.m-pupil'), knob: q('.m-knob'), lid: q('.m-lid'), lidLow: q('.m-lid-low'),
+    bill: q('.m-bill'), glint: q('.m-glint'), coin: q('.m-coin'), mouth: q('.m-mouth'),
+  };
+
+  let mood = 'tough';
+  let knob = 0;
+  let loops = [];
+  let moodT = 0;
+  let lastCoin = 0;
+  const KO = `${EYE.x} ${EYE.y}`;
+  const BASE = '100 191';
+
+  // initial pose
+  gsap.set(el.browL, { rotation: MOODS.tough.l, svgOrigin: '100 54' });
+  gsap.set(el.browR, { rotation: MOODS.tough.r, svgOrigin: '100 54' });
+  gsap.set(el.lid, { scaleY: MOODS.tough.lid, transformOrigin: '50% 0%' });
+  gsap.set(el.lidLow, { scaleY: 0, transformOrigin: '50% 100%' });
+  gsap.set(el.glint, { scale: 0, transformOrigin: '50% 50%' });
+  gsap.set(el.bill, { y: -28 });
+  gsap.set(el.mouth, { rotation: -3, svgOrigin: '100 143' });
+
+  // idle float
+  gsap.timeline({ repeat: -1, yoyo: true, defaults: { duration: 1.9, ease: 'sine.inOut' } })
+    .to(el.float, { y: -5 }, 0)
+    .to(el.shadowF, { scaleX: 0.88, opacity: 0.7, svgOrigin: '100 199' }, 0);
+
+  function setMood(name, d = 0.35) {
+    const m = MOODS[name];
+    mood = name;
+    gsap.to(el.browL, { rotation: m.l, svgOrigin: '100 54', duration: d, ease: 'back.out(2)' });
+    gsap.to(el.browR, { rotation: m.r, svgOrigin: '100 54', duration: d, ease: 'back.out(2)' });
+    gsap.to(el.brow, { y: m.y, duration: d, ease: 'back.out(2)' });
+    gsap.to(el.lid, { scaleY: m.lid, duration: d, ease: 'power2.out' });
+    gsap.to(el.lidLow, { scaleY: m.low, duration: d, ease: 'power2.out' });
+  }
+  function moodFor(name, ms) {
+    setMood(name);
+    clearTimeout(moodT);
+    moodT = setTimeout(() => setMood('tough'), ms);
+  }
+
+  function blink() {
+    if (mood === 'closed') return;
+    gsap.timeline()
+      .to(el.lid, { scaleY: 1, duration: 0.07, ease: 'power2.in' })
+      .to(el.lid, { scaleY: MOODS[mood].lid, duration: 0.13, ease: 'power2.out' });
+  }
+  (function blinkLoop() {
+    setTimeout(() => {
+      if (!document.hidden) {
+        blink();
+        if (Math.random() < 0.25) setTimeout(blink, 230);
+      }
+      blinkLoop();
+    }, 2300 + Math.random() * 3300);
+  })();
+
+  // eye follows pointer
+  const lx = gsap.quickTo(el.pupil, 'x', { duration: 0.45, ease: 'power3' });
+  const ly = gsap.quickTo(el.pupil, 'y', { duration: 0.45, ease: 'power3' });
+  function look(cx, cy) {
+    const r = svg.getBoundingClientRect();
+    if (!r.width) return;
+    const ex = r.left + r.width * 0.5, ey = r.top + r.height * (EYE.y / 210);
+    const dx = cx - ex, dy = cy - ey;
+    const d = Math.hypot(dx, dy) || 1;
+    const k = Math.min(1, d / 200);
+    lx((dx / d) * 4.6 * k);
+    ly((dy / d) * 4 * k);
+  }
+
+  function turnKnob(deg, dur = 0.5, ease = 'back.out(2.5)') {
+    knob += deg;
+    return gsap.to(el.knob, { rotation: knob, svgOrigin: KO, duration: dur, ease });
+  }
+
+  function dropCoin() {
+    const now = performance.now();
+    if (now - lastCoin < 420) return;
+    lastCoin = now;
+    gsap.timeline()
+      .set(el.coin, { y: -34, opacity: 1, scaleX: 1, transformOrigin: '50% 50%' })
+      .to(el.coin, { y: 26, duration: 0.42, ease: 'power2.in' })
+      .to(el.coin, { scaleX: 0.25, duration: 0.14, ease: 'sine.inOut', repeat: 2, yoyo: true }, 0)
+      .set(el.coin, { opacity: 0 })
+      .fromTo(el.rig, { scaleY: 0.965, scaleX: 1.02, svgOrigin: BASE }, { scaleY: 1, scaleX: 1, duration: 0.45, ease: 'elastic.out(1,.4)' });
+  }
+
+  // amount typed
+  function nudge(dir = 1) {
+    turnKnob(dir * (30 + Math.random() * 30));
+    dropCoin();
+  }
+
+  function glint() {
+    gsap.fromTo(el.glint,
+      { scale: 0, rotation: 0 },
+      { scale: 1.25, rotation: 90, duration: 0.32, ease: 'back.out(3)', yoyo: true, repeat: 1, repeatDelay: 0.12, transformOrigin: '50% 50%' });
+  }
+
+  function hop(h = 14) {
+    return gsap.timeline()
+      .to(el.rig, { scaleY: 0.9, scaleX: 1.07, svgOrigin: BASE, duration: 0.1, ease: 'power2.out' })
+      .to(el.rig, { y: -h, scaleY: 1.04, scaleX: 0.97, duration: 0.2, ease: 'power2.out' })
+      .to(el.shadow, { scaleX: 0.75, opacity: 0.18, svgOrigin: '100 199', duration: 0.2 }, '<')
+      .to(el.rig, { y: 0, scaleY: 1, scaleX: 1, duration: 0.18, ease: 'power2.in' })
+      .to(el.shadow, { scaleX: 1, opacity: 0.32, duration: 0.18 }, '<')
+      .to(el.rig, { scaleY: 0.92, scaleX: 1.05, duration: 0.07 })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.5, ease: 'elastic.out(1,.35)' });
+  }
+
+  function swap() {
+    setMood('wow', 0.2);
+    hop(30);
+    turnKnob(360, 0.7, 'power3.out');
+    clearTimeout(moodT);
+    moodT = setTimeout(() => setMood('tough'), 700);
+  }
+
+  function no() {
+    moodFor('angry', 1500);
+    gsap.timeline()
+      .to(el.rig, { x: -7, duration: 0.06 })
+      .to(el.rig, { x: 7, duration: 0.09, repeat: 3, yoyo: true, ease: 'sine.inOut' })
+      .to(el.rig, { x: 0, duration: 0.12 });
+    turnKnob(-40);
+  }
+
+  function wow() {
+    moodFor('wow', 1700);
+    glint();
+    hop(12);
+  }
+
+  function poke() {
+    moodFor('angry', 1300);
+    gsap.timeline()
+      .to(el.rig, { scaleY: 0.86, scaleX: 1.1, svgOrigin: BASE, duration: 0.08 })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.6, ease: 'elastic.out(1.1,.3)' });
+    turnKnob(90, 0.4);
+  }
+
+  function stopProcess() {
+    loops.forEach((t) => t.kill());
+    loops = [];
+    knob = gsap.getProperty(el.knob, 'rotation') || knob;
+    gsap.to(el.rig, { x: 0, duration: 0.2 });
+    gsap.to(el.bill, { y: -28, duration: 0.2 });
+  }
+
+  function process() {
+    stopProcess();
+    clearTimeout(moodT);
+    setMood('focus');
+    loops = [
+      gsap.to(el.knob, { rotation: '+=360', svgOrigin: KO, duration: 0.9, ease: 'none', repeat: -1 }),
+      gsap.to(el.rig, { x: 1.1, duration: 0.05, repeat: -1, yoyo: true, ease: 'none' }),
+      gsap.timeline({ repeat: -1, repeatDelay: 0.12 })
+        .to(el.bill, { y: 0, duration: 0.22, ease: 'power2.out' })
+        .to(el.bill, { y: -28, duration: 0.18, ease: 'power2.in' }, '+=.06'),
+    ];
+  }
+
+  function success() {
+    stopProcess();
+    setMood('happy');
+    glint();
+    gsap.timeline()
+      .add(hop(26))
+      .add(hop(12), '-=.45');
+    turnKnob(720, 1.3, 'power3.out');
+    gsap.to(el.bill, { y: 3, duration: 0.4, ease: 'back.out(2)', delay: 0.35 });
+  }
+
+  function enter() {
+    gsap.timeline()
+      .from(el.rig, { y: -170, duration: 0.55, ease: 'power3.in', svgOrigin: BASE })
+      .from(el.shadow, { scaleX: 0.2, opacity: 0, svgOrigin: '100 199', duration: 0.55, ease: 'power3.in' }, 0)
+      .to(el.rig, { scaleY: 0.84, scaleX: 1.12, duration: 0.08, svgOrigin: BASE })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.7, ease: 'elastic.out(1.1,.3)' })
+      .add(() => turnKnob(180, 0.8, 'power3.out'), '-=.6');
+  }
+
+  function reset() {
+    stopProcess();
+    clearTimeout(moodT);
+    setMood('tough', 0.2);
+    gsap.set(el.bill, { y: -28 });
+  }
+
+  // глаз закрыт (скрытый баланс)
+  function sleep(on) {
+    clearTimeout(moodT);
+    setMood(on ? 'closed' : 'tough', 0.3);
+  }
+
+  // мелкая моторика в простое — чтобы было видно, что он живой
+  function fidget() {
+    if (mood === 'closed' || loops.length) return;
+    const r = Math.random();
+    if (r < 0.28) {
+      // оглядывается по сторонам
+      lx(-4.6); ly(0.6);
+      setTimeout(() => lx(4.6), 750);
+      setTimeout(() => { lx(0); ly(0); }, 1500);
+    } else if (r < 0.52) {
+      // пересчитывает купюры во рту
+      gsap.timeline()
+        .to(el.bill, { y: -12, duration: 0.12, ease: 'power2.out', repeat: 5, yoyo: true })
+        .to(el.bill, { y: -28, duration: 0.15 });
+      [0, 0.2, 0.4].forEach((d) => gsap.delayedCall(d, () => turnKnob(12, 0.12, 'power2.out')));
+    } else if (r < 0.7) {
+      glint();
+    } else if (r < 0.86) {
+      // щёлкает кодом
+      [0, 0.16, 0.32].forEach((d, i) => gsap.delayedCall(d, () => turnKnob(i === 2 ? 60 : -18, 0.14, 'power3.out')));
+    } else {
+      // зевает
+      const m = MOODS[mood];
+      gsap.timeline()
+        .to(el.lid, { scaleY: 0.72, duration: 0.5, ease: 'sine.inOut' })
+        .to(el.rig, { scaleY: 1.03, svgOrigin: BASE, duration: 0.5, ease: 'sine.inOut' }, 0)
+        .to(el.lid, { scaleY: m.lid, duration: 0.3, ease: 'power2.out' }, '+=.5')
+        .to(el.rig, { scaleY: 1, duration: 0.4, ease: 'sine.out' }, '<');
+    }
+  }
+
+  // пасхалка: выплёвывает монету из щели на макушке
+  function spit() {
+    moodFor('wow', 1400);
+    gsap.timeline()
+      .to(el.rig, { scaleY: 0.88, scaleX: 1.08, svgOrigin: BASE, duration: 0.1 })
+      .set(el.coin, { y: 30, opacity: 1, scaleX: 1, transformOrigin: '50% 50%' })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.5, ease: 'elastic.out(1,.35)' })
+      .to(el.coin, { y: -70, duration: 0.35, ease: 'power2.out' }, '<')
+      .to(el.coin, { scaleX: 0.2, duration: 0.09, repeat: 3, yoyo: true }, '<')
+      .set(el.coin, { opacity: 0 });
+    glint();
+  }
+
+  return { el: svg, sleep, dropCoin, glint, hop, look, nudge, swap, no, wow, poke, process, stopProcess, success, enter, reset, blink, mood: setMood, turnKnob, fidget, spit };
+}
+
+
+const $ = (s, r = document) => r.querySelector(s);
+const D = JSON.parse($('#data').textContent);
+const feed = $('#feed'), chat = $('#chat'), phone = $('#phone');
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const LOGO = '<i><svg viewBox="0 0 34 34"><circle cx="17" cy="16" r="8.2" fill="#121726"/><circle cx="17" cy="16" r="7.4" fill="none" stroke="#F2B94B" stroke-width="1.5" stroke-dasharray="1.1 2.5"/><circle cx="17" cy="16" r="4.1" fill="#CFD6E3"/><rect x="16" y="11.6" width="2" height="2.6" rx="1" fill="#121726"/><rect x="12.5" y="26.2" width="9" height="2.2" rx="1.1" fill="#121726" opacity=".55"/></svg></i>';
+document.querySelectorAll('[data-ava]').forEach((a) => (a.innerHTML = LOGO));
+$('#botName').textContent = D.profile.name;
+$('#menuName').textContent = D.profile.menu;
+$('#descText').textContent = D.profile.desc;
+
+/* ───── состояние ───── */
+const st = { ctx: '', n: 1, h: 0, t: 1, claimed: false, rates: 0, busy: false, timers: [], chipFor: null };
+let clockM = 8 * 60 + 24;
+const hm = () => `${String(Math.floor(clockM / 60) % 24).padStart(2, '0')}:${String(clockM % 60).padStart(2, '0')}`;
+const later = (fn, ms) => { const id = setTimeout(fn, ms); st.timers.push(id); return id; };
+const SPECIAL = {
+  $menu: () => `menu_${st.h}${st.t ? 1 : 0}`,
+  $wallet: () => `wallet_${st.h}`,
+  $set: () => `set_${st.n}${st.h}${st.t}`,
+  $ref: () => (st.claimed ? 'ref_0' : 'ref'),
+};
+const res = (id) => (id && id[0] === '$' ? SPECIAL[id]() : id);
+
+/* ───── Telegram HTML → вёрстка ───── */
+function fmt(html) {
+  return html
+    .replace(/<pre><code class="language-([^"]+)">([\s\S]*?)<\/code><\/pre>\n?/g,
+      (m, lang, code) => `<div class="pre"><div class="pre-h"><span>${lang}</span><span class="pre-copy" data-copy-pre>⧉ Копировать</span></div><pre>${code}</pre></div>`)
+    .replace(/<blockquote expandable>/g, '<blockquote class="exp">')
+    .replace(/<\/blockquote>\n?/g, '</blockquote>')
+    .replace(/<tg-spoiler>/g, '<span class="spoiler">').replace(/<\/tg-spoiler>/g, '</span>');
+}
+const ICON = (b) => (b.webapp ? '⧉' : b.url ? '↗' : b.copy ? '⎘' : b.share !== undefined ? '↪' : '');
+function kbHTML(kb) {
+  return `<div class="kb">${kb.map((row, r) => `<div class="kb-row">${row.map((b, c) => `<button data-r="${r}" data-c="${c}">${esc(b.t)}${ICON(b) ? `<span class="ic">${ICON(b)}</span>` : ''}</button>`).join('')}</div>`).join('')}</div>`;
+}
+function render(el, id, edited) {
+  const s = D.s[id];
+  if (!s) { console.warn('нет экрана', id); return; }
+  el.dataset.id = id;
+  if (!el.dataset.t) el.dataset.t = hm();
+  const meta = `<span class="meta">${s.effect ? `<i class="eff">${s.effect}</i>` : ''}${edited ? 'изменено ' : ''}${el.dataset.t}</span>`;
+  el.innerHTML = `<div class="wrap${s.kb.length ? ' haskb' : ''}"><div class="bub"><div class="txt">${fmt(s.text)}${meta}</div></div>${s.kb.length ? kbHTML(s.kb) : ''}</div>`;
+}
+
+/* ───── сообщения ───── */
+function scrollDown() { requestAnimationFrame(() => chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' })); }
+function addEl(cls) {
+  const el = document.createElement('div');
+  el.className = cls + ' new';
+  feed.appendChild(el);
+  return el;
+}
+function addBot(id, quiet = false) {
+  id = res(id);
+  if (Math.random() < 0.5) clockM++;
+  const el = addEl('msg in');
+  render(el, id, false);
+  showChips(id);
+  if (!quiet) {
+    scrollDown();
+    if (D.s[id] && D.s[id].effect) later(() => effect(el, D.s[id].effect), 250);
+  }
+  return el;
+}
+function addUser(text, quiet = false) {
+  const el = addEl('msg out');
+  el.innerHTML = `<div class="wrap"><div class="bub"><div class="txt">${esc(text)}<span class="meta">${hm()} ✓✓</span></div></div></div>`;
+  if (!quiet) scrollDown();
+}
+function addSvc(text) { addEl('svc').textContent = text; }
+function addTip(text) { addEl('tip').innerHTML = `<small>всплывашка на кнопке</small>${esc(text)}`; }
+function lastBot() { const all = feed.querySelectorAll('.msg.in'); return all[all.length - 1]; }
+function editMsg(el, id) {
+  id = res(id);
+  render(el, id, true);
+  el.classList.remove('flash', 'new'); void el.offsetWidth; el.classList.add('flash');
+  if (el === lastBot()) showChips(id);
+}
+
+/* ───── подсказки «напиши за пользователя» ───── */
+function showChips(id) {
+  const list = (id && D.inp[id]) || [];
+  st.chipFor = id;
+  $('#chips').innerHTML = list.map((c, i) => `<button data-i="${i}">${c.silent ? '' : '✍️ '}${esc(c.t)}</button>`).join('');
+  $('#chips').classList.toggle('on', list.length > 0);
+}
+$('#chips').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  useChip(D.inp[st.chipFor][+b.dataset.i]);
+});
+function useChip(c) {
+  if (c.silent) { const el = lastBot(); if (el) editMsg(el, c.go); return; }
+  addUser(c.t);
+  later(() => { addBot(c.go); if (c.later) later(() => addBot(c.later), 2400); }, 450);
+}
+function submit() {
+  const inp = $('#inp');
+  const v = inp.value.trim(); if (!v) return;
+  inp.value = '';
+  closeCmds();
+  if (v[0] === '/') return command(v.slice(1).split(/[\s@]/)[0]);
+  const norm = (s) => s.toLowerCase().replace(/[\s ]/g, '').replace(',', '.');
+  const list = (st.chipFor && D.inp[st.chipFor]) || [];
+  const c = list.find((x) => !x.silent && norm(x.t) === norm(v));
+  if (c) return useChip(c);
+  if (list.length) return toast('В превью работают варианты из подсказок 👆');
+  addUser(v);
+  later(() => addBot('e_unknown'), 450);
+}
+function command(name) {
+  addUser('/' + name);
+  const id = D.cmd[name];
+  later(() => addBot(id || 'e_unknown'), 400);
+}
+$('#send').addEventListener('click', submit);
+$('#inp').addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+
+/* ───── команды «/» ───── */
+$('#cmds').innerHTML = D.profile.commands.map(([c, d]) => `<button data-cmd="${c}"><b>/${c}</b><span>${esc(d)}</span></button>`).join('');
+function closeCmds() { $('#cmds').classList.remove('on'); }
+$('#slash').addEventListener('click', () => $('#cmds').classList.toggle('on'));
+$('#cmds').addEventListener('click', (e) => { const b = e.target.closest('[data-cmd]'); if (!b) return; closeCmds(); command(b.dataset.cmd); });
+
+/* ───── нажатия ───── */
+feed.addEventListener('click', (e) => {
+  const sp = e.target.closest('.spoiler'); if (sp) { sp.classList.add('open'); return; }
+  const q = e.target.closest('blockquote.exp'); if (q) { q.classList.toggle('open'); return; }
+  const cp = e.target.closest('[data-copy-pre]'); if (cp) { copy(cp.closest('.pre').querySelector('pre').textContent); toast('Скопировано'); return; }
+  const code = e.target.closest('.txt code'); if (code) { copy(code.textContent); toast('Скопировано'); return; }
+  const b = e.target.closest('.kb button'); if (!b) return;
+  const el = b.closest('.msg');
+  press(el, D.s[el.dataset.id].kb[+b.dataset.r][+b.dataset.c]);
+});
+function press(el, b) {
+  if (b.webapp) return openApp(b.webapp);
+  if (b.copy) { copy(b.copy); return toast('Скопировано'); }
+  if (b.share !== undefined) return openShare();
+  if (b.url) { const a = D.url[b.url]; return a ? act(el, a) : toast('Откроется ссылка ↗'); }
+  if (st.busy) return toast(D.toasts.busy);
+  onCallback(el, b.cb);
+}
+function onCallback(el, data) {
+  if (data === 'noop') return;
+  if (data === 'rates:r') { st.rates ^= 1; editMsg(el, st.rates ? 'rates2' : 'rates'); return toast(D.toasts.rates); }
+  if (data === 'ref:claim') {
+    if (st.claimed) return toast(D.toasts.claimEmpty);
+    st.claimed = true;
+    if (el.dataset.id === 'ref') editMsg(el, 'ref_0');
+    return later(() => addBot('ref_claimed'), 350);
+  }
+  if (data === 'set:n') { st.n ^= 1; toast(st.n ? 'Уведомления включены 🔔' : 'Уведомления выключены 🔕'); return refreshSettings(el); }
+  if (data === 'set:h') { st.h ^= 1; toast(st.h ? 'Суммы спрятаны под спойлер 🙈' : 'Суммы снова видно 👁'); return refreshSettings(el); }
+  if (data.startsWith('set:t:')) { st.t = +data.slice(6); toast(D.toasts.talk[st.t]); return refreshSettings(el); }
+  const a = D.flow[data + '@' + st.ctx] || D.flow[data];
+  if (!a) return toast('В превью этот путь не показан');
+  act(el, a);
+}
+function refreshSettings(el) {
+  const id = el.dataset.id;
+  if (id.startsWith('set_')) editMsg(el, '$set');
+  else if (id.startsWith('wallet_')) editMsg(el, '$wallet');
+  else if (id.startsWith('menu_')) editMsg(el, '$menu');
+}
+function act(el, a) {
+  if (a.ctx !== undefined) st.ctx = a.ctx;
+  if (a.toast) toast(a.toast);
+  if (a.steps) return runSteps(el, a);
+  if (a.edit) editMsg(el, a.edit);
+  if (a.send) later(() => addBot(a.send), 400);
+  if (a.later) later(() => addBot(a.later), 2600);
+}
+function runSteps(el, a) {
+  st.busy = true;
+  showChips(null);
+  a.steps.forEach((s, i) => later(() => editMsg(el, s), i * 650));
+  later(() => { editMsg(el, a.close); addBot(a.send); st.busy = false; }, a.steps.length * 650 + 250);
+}
+
+/* ───── мелочи ───── */
+let toastT;
+function toast(text) {
+  const t = $('#toast');
+  t.textContent = text;
+  t.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('on'), 1900);
+}
+function copy(text) { try { navigator.clipboard.writeText(text); } catch (e) {} }
+function effect(el, emo) {
+  const fx = $('#fxl');
+  const bub = el.querySelector('.bub');
+  if (!bub) return;
+  const r = bub.getBoundingClientRect(), pr = phone.getBoundingClientRect();
+  const x0 = r.right - pr.left - 30, y0 = r.bottom - pr.top - 12;
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('span');
+    s.textContent = emo;
+    s.style.left = x0 + 'px'; s.style.top = y0 + 'px';
+    fx.appendChild(s);
+    const dx = (Math.random() - 0.5) * 300, dy = -60 - Math.random() * 320;
+    const k = 0.6 + Math.random() * 0.9, rot = (Math.random() - 0.5) * 420;
+    s.animate([
+      { transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx * 0.6}px), calc(-50% + ${dy * 0.8}px)) scale(${k}) rotate(${rot / 2}deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 60}px)) scale(${k * 0.8}) rotate(${rot}deg)`, opacity: 0 },
+    ], { duration: 1200 + Math.random() * 700, easing: 'cubic-bezier(.15,.7,.3,1)' }).onfinish = () => s.remove();
+  }
+}
+
+/* ───── шторки: мини-апп и «позвать друзей» ───── */
+function openSheet(title, html) {
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = html;
+  $('#sheet').classList.add('on');
+}
+function closeSheet() { $('#sheet').classList.remove('on'); $('#sheetBody').innerHTML = ''; }
+$('#sheetX').addEventListener('click', closeSheet);
+$('#sheetDim').addEventListener('click', closeSheet);
+function openApp(url) {
+  const hash = url && url.includes('#') ? url.slice(url.indexOf('#')) : '';
+  openSheet('Меняла', `<iframe src="${D.app}${hash}" title="Мини-апп Меняла" allow="clipboard-write"></iframe>`);
+}
+$('#menuBtn').addEventListener('click', () => openApp(''));
+function openShare() {
+  const s = D.s.share_card;
+  openSheet('Позвать друзей', `<div class="share">
+    <p class="lbl">Человек выбирает чат — и туда уходит такая карточка от его имени:</p>
+    <div class="msg out"><div class="wrap haskb"><div class="bub"><div class="txt"><span class="via">via @${esc(D.profile.bot)}</span>${fmt(s.text)}<span class="meta">${hm()} ✓</span></div></div>${kbHTML(s.kb)}</div></div>
+    <p class="lbl" style="margin-top:18px">А ещё можно позвать из любого чата — написать имя бота:</p>
+    <div class="fake-input"><b>@${esc(D.profile.bot)}</b><span>${esc(D.profile.inline)}</span></div>
+  </div>`);
+}
+$('#sheetBody').addEventListener('click', (e) => { if (e.target.closest('.kb button')) toast('Друг откроет бота по твоей ссылке ↗'); });
+
+/* ───── «что умеет этот бот» и профиль ───── */
+let descMascot = null;
+function setMode(mode) {
+  $('#empty').classList.toggle('on', mode === 'empty');
+  $('#profile').classList.toggle('on', mode === 'profile');
+  $('#startBtn').classList.toggle('on', mode === 'empty');
+  $('#bar').classList.toggle('off', mode !== 'chat');
+  if (mode === 'empty') {
+    if (!descMascot) descMascot = createMascot($('#descM'));
+    descMascot.enter();
+  }
+}
+$('#startBtn').addEventListener('click', () => {
+  setMode('chat');
+  addUser('/start');
+  later(() => addBot('welcome'), 500);
+});
+function profileHTML() {
+  const p = D.profile;
+  return `<div class="pf-top"><span class="ava">${LOGO}</span><b>${esc(p.name)}</b><span>бот · @${esc(p.bot)}</span></div>
+    <div class="pf-h">О боте — видно в профиле и при пересылке (до 120 символов)</div>
+    <div class="pf-card"><p>${esc(p.short)}</p></div>
+    <div class="pf-h">Меню команд «/»</div>
+    <div class="pf-card">${p.commands.map(([c, d]) => `<div class="pf-row"><code>/${c}</code> — ${esc(d)}</div>`).join('')}</div>
+    <div class="pf-h">Кнопка слева от поля ввода</div>
+    <div class="pf-card"><div class="pf-row"><span class="menu-btn" style="display:inline-flex">☰ ${esc(p.menu)}</span><small style="margin-top:8px">открывает мини-апп одним тапом</small></div></div>
+    <div class="pf-h">Описание в пустом чате, до «Старт» (до 512 символов)</div>
+    <div class="pf-card"><p>${esc(p.desc)}</p></div>
+    <div class="pf-h">Что выставить в BotFather</div>
+    <div class="pf-card">${p.father.map(([k, v]) => `<div class="pf-row"><code>${esc(k)}</code><small>${esc(v)}</small></div>`).join('')}</div>`;
+}
+$('#profile').innerHTML = profileHTML();
+
+/* ───── сценарии ───── */
+$('#nav').innerHTML = D.scen.map((s) => `<button data-s="${s.id}"><i>${s.e}</i>${esc(s.name)}</button>`).join('');
+$('#nav').addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (b) load(b.dataset.s); });
+function animSeq(frames) {
+  const el = addBot(frames[0], true);
+  frames.slice(1).forEach((f, i) => later(() => editMsg(el, f), 900 + i * 420));
+}
+function load(id) {
+  st.timers.forEach(clearTimeout); st.timers = [];
+  Object.assign(st, { ctx: '', claimed: false, rates: 0, busy: false });
+  feed.innerHTML = '';
+  showChips(null); closeSheet(); closeCmds();
+  clockM = 8 * 60 + 24;
+  const sc = D.scen.find((s) => s.id === id) || D.scen[0];
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.s === sc.id));
+  const nb = document.querySelector(`#nav [data-s="${sc.id}"]`);
+  if (nb && nb.scrollIntoView && innerWidth <= 860) nb.scrollIntoView({ inline: 'center', block: 'nearest' });
+  setMode('chat');
+  sc.init.forEach((a) => {
+    if (a.mode) setMode(a.mode);
+    else if (a.user) addUser(a.user, true);
+    else if (a.bot) addBot(a.bot, true);
+    else if (a.service) addSvc(a.service);
+    else if (a.toast) addTip(a.toast);
+    else if (a.anim) animSeq(a.anim);
+  });
+  const long = sc.init.length > 5;
+  feed.classList.toggle('top', long);
+  requestAnimationFrame(() => (chat.scrollTop = long ? 0 : chat.scrollHeight));
+  try { history.replaceState(null, '', '#' + sc.id); } catch (e) {}
+}
+addEventListener('hashchange', () => { const h = location.hash.slice(1); if (D.scen.some((s) => s.id === h) && !document.querySelector(`#nav [data-s="${h}"].on`)) load(h); });
+load(location.hash.slice(1) || 'start');
+})();
+</script>
+</body>
+</html>
