@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0A0D14" />
+  <title>Меняла — обмен крипты</title>
+  <link href="../vendor/fonts/fonts.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="../vendor/gsap.min.js"></script>
+</head>
+<body>
+
+<!-- ───────────── sprite: currency glyphs + UI icons ───────────── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- glyphs (used in patterns, coins, tiles) -->
+    <symbol id="g-rub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 20V4.5h5a4.25 4.25 0 0 1 0 8.5H6.5M6.5 16.5h8"/></symbol>
+    <symbol id="g-usdt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h14M12 4.5V20"/><path d="M4 10.6c0-1.3 3.6-2.3 8-2.3s8 1 8 2.3-3.6 2.3-8 2.3-8-1-8-2.3z"/></symbol>
+    <symbol id="g-btc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13M6.5 5.5h7a3.25 3.25 0 0 1 0 6.5H8M8 12h6.25a3.25 3.25 0 0 1 0 6.5H6.5M10 3.5v2M13.5 3.5v2M10 18.5v2M13.5 18.5v2"/></symbol>
+    <symbol id="g-ton" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 6h13L12 19.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="g-eth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L6.5 12 12 15.2 17.5 12z"/><path d="M6.5 14l5.5 7 5.5-7-5.5 3.2z"/></symbol>
+    <symbol id="g-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 5.5h12l-3 3h-12zM4.5 10.5h12l3 3h-12zM7.5 15.5h12l-3 3h-12z"/></symbol>
+    <symbol id="g-trx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l15.5 3.5L11 20z"/><path d="M4 5l9 7.5 6.5-4M13 12.5L11 20"/></symbol>
+    <symbol id="g-safe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="15" rx="4.5"/><circle cx="12" cy="11.2" r="3.2"/><path d="M8 19v1.5M16 19v1.5"/></symbol>
+
+    <!-- ui icons -->
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 19V5M8.5 5L5 8.5M8.5 5L12 8.5M15.5 5v14M15.5 19L12 15.5M15.5 19l3.5-3.5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M15 9V7.5A3.5 3.5 0 0 0 11.5 4h-4A3.5 3.5 0 0 0 4 7.5v4A3.5 3.5 0 0 0 7.5 15H9"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12.5l4 4L18 8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M11 17.5h2"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8V7a2.5 2.5 0 0 1 2.5-2.5H16a2 2 0 0 1 2 2V8"/><rect x="4" y="8" width="16" height="11.5" rx="3"/><path d="M15.5 13.75h1"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h3"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5.5 13.5h6L10.5 21 18 10.5h-6z"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.4"/><path d="M6.5 10v4M17.5 10v4"/></symbol>
+    <symbol id="i-swaph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5h14l-4-4M19.5 15.5h-14l4 4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M12 4L8 8M12 4l4 4"/><path d="M5 13v3.5A3.5 3.5 0 0 0 8.5 20h7a3.5 3.5 0 0 0 3.5-3.5V13"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4.8a2 2 0 0 1 3.4 0l7 12.2A2 2 0 0 1 19 20H5a2 2 0 0 1-1.7-3z"/><path d="M12 10v3.5M12 16.5v.01"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.8v5.4c0 4.3-2.9 7.7-7 9-4.1-1.3-7-4.7-7-9V6.3z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.9-3 3-4.6 5.5-4.6s4.6 1.6 5.5 4.6"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.8c1.4.6 2.4 2 3 4.2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V7.5A3.5 3.5 0 0 1 8.5 4h7A3.5 3.5 0 0 1 19 7.5v5a3.5 3.5 0 0 1-3.5 3.5H8.5z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h7l4 4V18a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 5 18V6a2.5 2.5 0 0 1 2-2.5z"/><path d="M14 3.5V8h4M8.5 12.5h7M8.5 16h4.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+
+  <!-- header -->
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 30 30"><circle cx="15" cy="14" r="6.6" fill="#1B2030"/><circle cx="15" cy="14" r="6.6" fill="none" stroke="#F2B94B" stroke-width="1.4" stroke-dasharray="1.2 2.3"/><circle cx="15" cy="14" r="3.4" fill="#C9D1DF"/><rect x="11" y="23" width="8" height="2" rx="1" fill="#1B2030" opacity=".55"/></svg>
+      </span>
+      <span class="brand-name">МЕНЯЛА</span>
+    </div>
+    <button class="lock" id="lock" aria-label="Курс зафиксирован">
+      <svg viewBox="0 0 20 20"><circle class="rg" cx="10" cy="10" r="8" fill="none" stroke-width="2.4"/><circle class="fg" id="lockRing" cx="10" cy="10" r="8" fill="none" stroke-width="2.4"/></svg>
+      <span>Курс</span><b id="lockTime">1:00</b>
+    </button>
+  </header>
+
+  <main>
+    <!-- ════════ EXCHANGE ════════ -->
+    <section class="screen is-on" data-screen="exchange">
+
+      <div class="hero" id="hero">
+        <svg class="hero-pattern" id="heroPattern" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+        <div class="hero-glow"></div>
+        <div class="hero-top">
+          <span class="glass"><i class="live"></i>Онлайн 24/7</span>
+          <span class="glass" id="heroDelta">24ч +0,42%</span>
+        </div>
+        <div class="hero-mascot" id="heroMascot"></div>
+        <div class="bubble" id="bubble"></div>
+        <div class="hero-title" id="heroPair">USDT → RUB</div>
+        <div class="hero-sub">1 <span id="heroCode">USDT</span> = <number-flow id="heroRate"></number-flow> ₽</div>
+      </div>
+
+      <div class="swap" id="swap">
+        <div class="leg leg-give">
+          <div class="leg-head"><span>Отдаёте</span><span class="leg-hint" id="giveHint"></span></div>
+          <div class="leg-row">
+            <input id="giveInput" class="amount" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="0" aria-label="Сумма" />
+            <button class="cur" id="giveCur" aria-label="Выбрать валюту"></button>
+          </div>
+        </div>
+        <div class="leg leg-get">
+          <button class="swap-btn" id="swapBtn" aria-label="Поменять направление"><svg><use href="#i-swap"/></svg></button>
+          <div class="leg-head"><span>Получаете</span><span class="leg-hint" id="getHint"></span></div>
+          <div class="leg-row">
+            <div class="amount amount-out" id="getBox"><number-flow id="getFlow"></number-flow></div>
+            <button class="cur" id="getCur" aria-label="Выбрать валюту"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick" id="quick"></div>
+
+      <label class="dest" id="dest">
+        <span class="dest-ico" id="destIco"><svg><use href="#i-bolt"/></svg></span>
+        <span class="dest-body">
+          <span class="dest-label" id="destLabel">Телефон для СБП</span>
+          <input id="destInput" autocomplete="off" spellcheck="false" placeholder="+7 900 000-00-00" />
+        </span>
+        <button class="dest-paste" type="button" id="destPaste">Вставить</button>
+      </label>
+
+      <dl class="attrs" id="attrs"></dl>
+      <p class="fine">Курс держим 60 секунд. Комиссия уже внутри — в итоге ровно та сумма, что на экране.</p>
+    </section>
+
+    <!-- ════════ HISTORY ════════ -->
+    <section class="screen" data-screen="history">
+      <h2 class="scr-title">История</h2>
+      <div class="hsum">
+        <div class="hsum-top">
+          <div>
+            <div class="hsum-label">Оборот за ноябрь</div>
+            <div class="hsum-val">412 800 <em>₽</em></div>
+          </div>
+          <span class="pill">7 обменов</span>
+        </div>
+        <div class="bars" id="bars"></div>
+        <div class="hsum-foot"><span>1 ноя</span><span>сегодня</span></div>
+      </div>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- ════════ PROFILE ════════ -->
+    <section class="screen" data-screen="profile">
+      <div class="prof">
+        <div class="ava">Б</div>
+        <div>
+          <div class="prof-name">Бро</div>
+          <div class="prof-sub">@username · с нами с марта</div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <svg class="tier-pattern" id="tierPattern" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+        <div class="tier-in">
+          <div class="tier-label">Статус</div>
+          <div class="tier-name">Свой человек</div>
+          <div class="tier-bar"><i style="width:62%"></i></div>
+          <div class="tier-foot"><span>до «Постоянного» — 187 600 ₽</span><span>62%</span></div>
+        </div>
+        <span class="tier-badge">−0,2% к спреду</span>
+      </div>
+
+      <div class="stats">
+        <div><b>27</b><span>обменов</span></div>
+        <div><b>1,4 млн</b><span>оборот, ₽</span></div>
+        <div><b>12 400</b><span>экономия, ₽</span></div>
+      </div>
+
+      <div class="menu">
+        <button class="mi"><span class="mi-ico"><svg><use href="#i-wallet"/></svg></span><span class="mi-t">Реквизиты и кошельки<small>2 карты · 3 адреса</small></span><svg class="mi-chev"><use href="#i-right"/></svg></button>
+        <button class="mi"><span class="mi-ico"><svg><use href="#i-users"/></svg></span><span class="mi-t">Позвать друга<small>+0,1% с каждого его обмена</small></span><svg class="mi-chev"><use href="#i-right"/></svg></button>
+        <button class="mi"><span class="mi-ico"><svg><use href="#i-shield"/></svg></span><span class="mi-t">Безопасность<small>AML-проверка · KYC не нужен до 300к</small></span><svg class="mi-chev"><use href="#i-right"/></svg></button>
+        <button class="mi"><span class="mi-ico"><svg><use href="#i-chat"/></svg></span><span class="mi-t">Поддержка<small>живой человек, отвечаем за 2 мин</small></span><svg class="mi-chev"><use href="#i-right"/></svg></button>
+      </div>
+    </section>
+  </main>
+
+  <!-- dock: CTA + tabs -->
+  <div class="dock" id="dock">
+    <div class="dock-in">
+      <div class="cta-wrap"><div><button class="cta" id="cta"><span class="cta-main" id="ctaMain">Обменять</span><span class="cta-sub" id="ctaSub"></span></button></div></div>
+      <nav class="tabs">
+        <i class="tab-ind" id="tabInd"></i>
+        <button class="tab on" data-tab="exchange"><svg><use href="#i-swaph"/></svg>Обмен</button>
+        <button class="tab" data-tab="history"><svg><use href="#i-clock"/></svg>История</button>
+        <button class="tab" data-tab="profile"><svg><use href="#i-user"/></svg>Профиль</button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- bottom sheet -->
+<div class="sheet-wrap" id="sheet">
+  <div class="sheet-dim"></div>
+  <div class="sheet">
+    <div class="grabber"></div>
+    <div class="sheet-head"><h3 id="sheetTitle"></h3><p id="sheetSub"></p></div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+
+<!-- order flow -->
+<div class="flow" id="flow">
+  <div class="flow-in">
+    <div class="flow-top">
+      <button class="icon-btn" id="flowClose" aria-label="Закрыть"><svg><use href="#i-x"/></svg></button>
+      <span class="flow-id" id="fId">Заявка</span>
+      <span class="flow-timer" id="fTimer">30:00</span>
+    </div>
+    <div class="hero hero-sm">
+      <svg class="hero-pattern" id="fPattern" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <div class="hero-glow"></div>
+      <div class="hero-mascot" id="fMascot"></div>
+      <div class="hero-title" id="fTitle"></div>
+      <div class="hero-sub" id="fSub"></div>
+    </div>
+    <div id="fBody"></div>
+  </div>
+  <div class="flow-dock"><div class="dock-in"><button class="cta" id="fCta"><span class="cta-main">Я перевёл</span></button></div></div>
+</div>
+
+<div class="fx" id="fx"></div>
+<div class="toast" id="toast"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
