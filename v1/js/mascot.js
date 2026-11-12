@@ -351,5 +351,49 @@ export function createMascot(host) {
     setMood(on ? 'closed' : 'tough', 0.3);
   }
 
-  return { el: svg, sleep, dropCoin, glint, hop, look, nudge, swap, no, wow, poke, process, stopProcess, success, enter, reset, blink, mood: setMood, turnKnob };
+  // мелкая моторика в простое — чтобы было видно, что он живой
+  function fidget() {
+    if (mood === 'closed' || loops.length) return;
+    const r = Math.random();
+    if (r < 0.28) {
+      // оглядывается по сторонам
+      lx(-4.6); ly(0.6);
+      setTimeout(() => lx(4.6), 750);
+      setTimeout(() => { lx(0); ly(0); }, 1500);
+    } else if (r < 0.52) {
+      // пересчитывает купюры во рту
+      gsap.timeline()
+        .to(el.bill, { y: -12, duration: 0.12, ease: 'power2.out', repeat: 5, yoyo: true })
+        .to(el.bill, { y: -28, duration: 0.15 });
+      [0, 0.2, 0.4].forEach((d) => gsap.delayedCall(d, () => turnKnob(12, 0.12, 'power2.out')));
+    } else if (r < 0.7) {
+      glint();
+    } else if (r < 0.86) {
+      // щёлкает кодом
+      [0, 0.16, 0.32].forEach((d, i) => gsap.delayedCall(d, () => turnKnob(i === 2 ? 60 : -18, 0.14, 'power3.out')));
+    } else {
+      // зевает
+      const m = MOODS[mood];
+      gsap.timeline()
+        .to(el.lid, { scaleY: 0.72, duration: 0.5, ease: 'sine.inOut' })
+        .to(el.rig, { scaleY: 1.03, svgOrigin: BASE, duration: 0.5, ease: 'sine.inOut' }, 0)
+        .to(el.lid, { scaleY: m.lid, duration: 0.3, ease: 'power2.out' }, '+=.5')
+        .to(el.rig, { scaleY: 1, duration: 0.4, ease: 'sine.out' }, '<');
+    }
+  }
+
+  // пасхалка: выплёвывает монету из щели на макушке
+  function spit() {
+    moodFor('wow', 1400);
+    gsap.timeline()
+      .to(el.rig, { scaleY: 0.88, scaleX: 1.08, svgOrigin: BASE, duration: 0.1 })
+      .set(el.coin, { y: 30, opacity: 1, scaleX: 1, transformOrigin: '50% 50%' })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.5, ease: 'elastic.out(1,.35)' })
+      .to(el.coin, { y: -70, duration: 0.35, ease: 'power2.out' }, '<')
+      .to(el.coin, { scaleX: 0.2, duration: 0.09, repeat: 3, yoyo: true }, '<')
+      .set(el.coin, { opacity: 0 });
+    glint();
+  }
+
+  return { el: svg, sleep, dropCoin, glint, hop, look, nudge, swap, no, wow, poke, process, stopProcess, success, enter, reset, blink, mood: setMood, turnKnob, fidget, spit };
 }

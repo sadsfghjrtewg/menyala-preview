@@ -139,7 +139,7 @@ number-flow { font-variant-numeric: tabular-nums; --number-flow-mask-height: .16
   pointer-events: none;
 }
 .bal-mascot { position: absolute; z-index: 2; right: 8px; top: 22px; width: 126px; cursor: grab; touch-action: manipulation; }
-.bal-mascot svg, .s-mascot svg, .ref-big svg, .ref-small > div svg { width: 100%; height: auto; overflow: visible; }
+.bal-mascot svg, .s-mascot svg, .ref-big svg, .ref-small svg { width: 100%; height: auto; overflow: visible; }
 .bal-in { position: absolute; z-index: 3; left: 20px; top: 18px; bottom: 18px; display: flex; flex-direction: column; max-width: calc(100% - 160px); }
 .bal-label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: rgba(255,255,255,.72); }
 .eye {
@@ -167,13 +167,14 @@ number-flow { font-variant-numeric: tabular-nums; --number-flow-mask-height: .16
 
 .bubble {
   position: absolute; z-index: 4;
-  right: 126px; top: 56px;
-  white-space: nowrap;
+  right: 126px; top: 50px;
+  width: max-content; max-width: 196px;
+  text-wrap: balance;
   padding: 7px 11px 8px;
   border-radius: 14px 14px 4px 14px;
   background: #fff; color: #05070C;
-  font-size: 12px; font-weight: 700; line-height: 1.2;
-  box-shadow: 0 8px 20px -6px rgba(0,0,0,.4);
+  font-size: 12.5px; font-weight: 700; line-height: 1.22;
+  box-shadow: 0 8px 20px -6px rgba(0,0,0,.45);
   transform-origin: 100% 100%;
   opacity: 0; pointer-events: none;
 }
@@ -266,7 +267,35 @@ button.row:active { background: rgba(255,255,255,.025); }
 .board-live { display: flex; align-items: center; gap: 6px; }
 .board-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: blinkLed 1.6s steps(2) infinite; }
 @keyframes blinkLed { 50% { opacity: .25; } }
+/* бегущая строка: любой шрифт превращается в LED через маску из точек */
+.marq {
+  position: relative;
+  margin: 10px -14px 0;
+  height: 26px;
+  overflow: hidden;
+  background: #050506;
+  border-block: 1px solid rgba(255, 181, 71, .08);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.marq-in {
+  display: flex; align-items: center; gap: 14px;
+  width: max-content; height: 100%;
+  padding-left: 14px;
+  font: 800 15px/1 var(--f-mono);
+  letter-spacing: .06em;
+  color: #FF5A3C;
+  text-shadow: 0 0 6px rgba(255, 70, 40, .7);
+  white-space: nowrap;
+  -webkit-mask: radial-gradient(circle, #000 .95px, transparent 1.25px) 0 0 / 2.4px 2.4px;
+          mask: radial-gradient(circle, #000 .95px, transparent 1.25px) 0 0 / 2.4px 2.4px;
+  animation: marq 38s linear infinite;
+}
+.marq-in i { width: 6px; height: 6px; border-radius: 1px; background: currentColor; flex: none; }
+@keyframes marq { to { transform: translateX(-50%); } }
 .board-head, .board-row { display: grid; grid-template-columns: .8fr 1.1fr 1.1fr; align-items: center; }
+.board-row { width: 100%; text-align: left; }
+.board-row:active { background: rgba(255, 181, 71, .05); }
 .board-head { margin-top: 10px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255, 181, 71, .14); font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #6E5732; }
 .board-head span + span, .board-row span + span { text-align: right; }
 .board-row {
@@ -296,12 +325,27 @@ button.row:active { background: rgba(255,255,255,.025); }
   width: 64px; height: 64px;
   border-radius: 17px;
   overflow: hidden;
-  display: grid; place-items: center;
-  background: radial-gradient(circle at 50% 45%, #FFD37A, #C47E1E 60%, #6F420B);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+  background: radial-gradient(circle at 50% 40%, #1E6B48, #0B3424 70%, #062016);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(110, 230, 160, .14);
 }
-.promo-pat { position: absolute; inset: 0; width: 100%; height: 100%; color: #6B3F07; opacity: .45; }
-.promo-art b { position: relative; font: 700 17px/1 var(--f-disp); letter-spacing: -.04em; color: #2A1803; }
+.promo-art .cash { position: absolute; left: 7px; top: 21px; rotate: -14deg; }
+.promo-art .cash.c2 { left: 13px; top: 14px; rotate: 9deg; opacity: .55; }
+
+/* «сотка» — условная купюра, не копия настоящей */
+.cash {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+  width: 52px; height: 28px;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 84% 50%, rgba(255,255,255,.35) 0 5px, transparent 5.5px),
+    repeating-linear-gradient(135deg, rgba(20, 90, 55, .14) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, #C9F2D6, #7FD3A0 60%, #5BB884);
+  box-shadow: inset 0 0 0 1.5px rgba(30, 100, 60, .55), inset 0 0 0 3.5px rgba(255,255,255,.35), 0 6px 12px -4px rgba(0,0,0,.55);
+  color: #0E3B25;
+}
+.cash b { font: 700 13px/1 var(--f-disp); letter-spacing: -.04em; }
+.cash i { font: 700 10px/1 var(--f-ui); font-style: normal; }
 .promo-t { flex: 1; min-width: 0; }
 .promo-t b { display: block; font-size: 15px; font-weight: 700; }
 .promo-t small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--mu); }
@@ -320,13 +364,33 @@ button.row:active { background: rgba(255,255,255,.025); }
 .lock .rg { stroke: var(--s3); }
 .lock .fg { stroke: var(--blue-hi); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
 
+.lock.hot b { color: var(--amber); }
+.lock.hot .fg { stroke: var(--amber); }
+
+/* Меняла выглядывает из-за «прилавка» — верхней карточки */
+.x-peek { position: relative; height: 70px; }
+.x-mascot { position: absolute; z-index: 1; right: 22px; top: 2px; width: 104px; cursor: grab; touch-action: manipulation; }
+.x-mascot svg { width: 100%; height: auto; overflow: visible; }
+.x-bub { right: 132px; top: 6px; }
 .xstack { display: flex; flex-direction: column; }
 .xcard {
+  position: relative; z-index: 2;
   padding: 14px 16px 16px;
   border-radius: var(--r-lg);
   background: var(--surf);
   box-shadow: inset 0 0 0 1px var(--line);
 }
+.grip {
+  position: absolute; top: -7px;
+  width: 22px; height: 13px;
+  border-radius: 7px 7px 5px 5px;
+  background:
+    linear-gradient(90deg, transparent 6.5px, rgba(30,37,54,.5) 6.5px 7.5px, transparent 7.5px 14.5px, rgba(30,37,54,.5) 14.5px 15.5px, transparent 15.5px),
+    linear-gradient(180deg, #D9DFE9, #8E99AE);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 5px rgba(0,0,0,.45);
+}
+.grip.l { right: 97px; }
+.grip.r { right: 29px; }
 .x-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--mu); }
 .x-bal { font-size: 12.5px; color: var(--mu); font-variant-numeric: tabular-nums; }
 .x-bal.bad { color: var(--bad); }
@@ -407,6 +471,78 @@ button.row:active { background: rgba(255,255,255,.025); }
 .kv .total dd { font-size: 15px; }
 .fine { margin: 12px 6px 0; font-size: 12.5px; line-height: 1.45; color: var(--di); }
 
+/* «зажми и держи» */
+.hold {
+  position: relative;
+  width: 100%; height: 58px;
+  margin-top: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 16px; font-weight: 700;
+  color: #fff;
+  background: var(--blue);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 0 rgba(0,0,0,.18), 0 12px 26px -14px rgba(46,107,255,.9);
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  transition: scale .2s var(--ease);
+}
+.hold.on { scale: .985; }
+.hold-fill { position: absolute; inset: 0; background: linear-gradient(90deg, #4C82FF, #7CA4FF); }
+.hold-dial, .hold-t { position: relative; }
+.hold-dial { width: 24px; height: 24px; display: block; }
+.hold-dial svg { width: 100%; height: 100%; }
+.link-btn { display: block; margin: 12px auto 0; padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--mu); }
+
+/* чек */
+.printer { margin-top: 14px; }
+.slot {
+  height: 12px; margin: 0 4px;
+  border-radius: 7px;
+  background: #020305;
+  box-shadow: inset 0 3px 5px #000, 0 1px 0 rgba(255,255,255,.07);
+}
+.paper-wrap {
+  position: relative;
+  margin: -6px 18px 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  overflow: hidden;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,.45));
+}
+.paper {
+  position: relative; flex: none;
+  padding: 18px 16px 24px;
+  background: linear-gradient(180deg, #DCD8CE 0, #F4F1EA 14px);
+  color: #23252B;
+  font: 500 12.5px/1.55 var(--f-mono);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+          mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+}
+.p-head { display: flex; flex-direction: column; align-items: center; gap: 1px; text-align: center; }
+.p-head b { font: 700 17px/1.2 var(--f-disp); letter-spacing: .22em; margin-bottom: 3px; }
+.p-head span { font-size: 11.5px; color: #6C6A63; }
+.p-cut { margin: 9px 0; border-top: 1.5px dashed #B3AEA2; }
+.p-row { display: flex; justify-content: space-between; gap: 12px; }
+.p-row span:last-child { text-align: right; font-weight: 600; }
+.p-total { font-size: 14px; font-weight: 700; }
+.p-total span:last-child { font-weight: 800; }
+.p-bar { display: block; width: 54%; height: 34px; margin-top: 2px; fill: #23252B; }
+.p-foot { margin-top: 8px; text-align: center; font-size: 11px; letter-spacing: .04em; color: #4A4943; }
+.stamp {
+  position: absolute; right: 14px; bottom: 44px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 5px 10px 4px;
+  border: 2.5px solid #D9353C;
+  border-radius: 9px;
+  outline: 1.5px solid #D9353C; outline-offset: 2px;
+  color: #D9353C;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.stamp b { font: 800 14px/1.1 var(--f-disp); letter-spacing: .06em; text-transform: uppercase; }
+.stamp small { font: 600 9.5px/1.2 var(--f-mono); }
+
 /* ───────── history ───────── */
 .hh { display: flex; align-items: center; gap: 14px; padding: 16px 2px 18px; }
 .hh-ico {
@@ -480,16 +616,41 @@ button.row:active { background: rgba(255,255,255,.025); }
 .me-id { display: flex; align-items: center; gap: 6px; margin-top: 5px; font: 500 13px/1 var(--f-mono); color: var(--mu); }
 .mini-copy { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: var(--s2); color: var(--mu); }
 .mini-copy svg { width: 13px; height: 13px; }
-.prem {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 9px; height: 26px; padding: 0 10px 0 8px;
-  border-radius: 999px;
-  font-size: 12.5px; font-weight: 700;
-  color: #2A1803;
-  background: linear-gradient(180deg, #FFD87F, #E3A23A);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 6px 14px -8px rgba(242,185,75,.9);
+.me-since { margin-top: 8px; font-size: 13px; color: var(--mu); }
+
+/* «наменял на N ₽ = M шаурм» — билет с отрывным корешком */
+.fun {
+  --notch: radial-gradient(circle, var(--bg) 8px, transparent 8.5px);
+  position: relative;
+  width: 100%;
+  display: flex; align-items: stretch;
+  margin-bottom: 12px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(120deg, #14301F, #0D1A16 55%, var(--s1));
+  box-shadow: inset 0 0 0 1px rgba(110, 230, 160, .12);
+  transition: scale .15s var(--ease);
 }
-.prem svg { width: 15px; height: 15px; }
+.fun:active { scale: .985; }
+.fun::before, .fun::after {
+  content: ''; position: absolute; right: 112px; width: 18px; height: 18px; margin-right: -9px;
+  background: var(--notch);
+}
+.fun::before { top: -9px; }
+.fun::after { bottom: -9px; }
+.fun-l { flex: 1; min-width: 0; padding: 14px 16px; }
+.fun-l small { display: block; font-size: 12.5px; color: var(--mu); }
+.fun-l b { display: flex; align-items: baseline; gap: 5px; margin-top: 4px; font: 600 23px/1.1 var(--f-disp); letter-spacing: -.03em; white-space: nowrap; }
+.fun-tap { display: block; margin-top: 6px; font-size: 11.5px; color: #5FBF8A; }
+.fun-r {
+  flex: none; width: 112px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 10px 8px;
+  border-left: 2px dashed rgba(110, 230, 160, .18);
+  text-align: center;
+}
+.fun-n { font: 600 13px/1 var(--f-ui); color: var(--mu); }
+.fun-n b { font: 700 25px/1 var(--f-disp); letter-spacing: -.03em; color: #8BF0B6; }
+.fun-r small { font-size: 12px; line-height: 1.2; color: #BDEFD0; }
 .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
@@ -508,32 +669,45 @@ button.row:active { background: rgba(255,255,255,.025); }
 /* ───────── referral ───────── */
 .ref-hero {
   position: relative;
-  height: 250px;
+  height: 252px;
   border-radius: var(--r-xl);
   overflow: hidden;
   isolation: isolate;
-  background: radial-gradient(100% 90% at 50% 36%, #3F7EFF, #1C49CC 32%, #0C2069 66%, #06102E);
+  background: radial-gradient(90% 100% at 70% 34%, #3F7EFF, #1C49CC 32%, #0C2069 66%, #06102E);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(124,164,255,.18);
 }
 .ref-pat { position: absolute; inset: 0; width: 100%; height: 100%; color: #0A1F68; opacity: .8; }
-.ref-glow { left: 50%; right: auto; top: -30px; translate: -50% 0; width: 280px; height: 280px; }
-.ref-duo { position: absolute; z-index: 2; left: 50%; top: 22px; translate: -50% 0; display: flex; align-items: flex-end; }
-.ref-big { width: 122px; }
-.ref-small { position: relative; width: 82px; margin-left: -12px; }
-.ref-crown { position: absolute; z-index: 2; left: 50%; top: -14px; width: 30px; height: 30px; translate: -44% 0; rotate: 12deg; color: #FFC94F; filter: drop-shadow(0 3px 4px rgba(0,0,0,.35)); }
-.ref-coin {
-  position: absolute; z-index: 3;
-  left: calc(50% - 112px); top: 40px;
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  font: 700 12px/1 var(--f-disp); letter-spacing: -.04em;
-  color: #2A1803;
-  background: radial-gradient(circle at 35% 28%, #FFF0BF, #F0B547 55%, #A86A14);
-  box-shadow: inset 0 0 0 2px rgba(160,100,20,.45), 0 8px 16px -6px rgba(0,0,0,.5);
-  rotate: -12deg;
+.ref-glow { left: auto; right: 10px; top: -40px; width: 280px; height: 280px; }
+.ref-duo { position: absolute; z-index: 2; right: 22px; top: 20px; display: flex; align-items: flex-end; }
+.ref-big { width: 122px; cursor: grab; }
+.ref-small { position: relative; width: 82px; margin-left: -12px; cursor: grab; }
+.ref-cash { position: absolute; z-index: 3; right: 150px; top: 112px; rotate: -14deg; width: 60px; height: 32px; }
+.ref-cash b { font-size: 15px; }
+.ref-bub { left: 16px; right: auto; top: 18px; max-width: 150px; border-radius: 14px 14px 14px 4px; transform-origin: 0 100%; }
+.ref-text { position: absolute; z-index: 3; left: 20px; right: 20px; bottom: 18px; }
+.ref-text b { display: block; font: 700 44px/1 var(--f-disp); letter-spacing: -.05em; text-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.ref-text span { display: block; margin-top: 6px; font-size: 14px; font-weight: 600; line-height: 1.3; color: rgba(255,255,255,.82); }
+
+.how {
+  position: relative;
+  margin-top: 12px; padding: 4px 16px;
+  border-radius: var(--r-lg);
+  background: var(--surf);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
-.ref-text { position: absolute; z-index: 3; left: 0; right: 0; bottom: 18px; text-align: center; font: 600 15.5px/1.35 var(--f-disp); letter-spacing: -.01em; text-shadow: 0 2px 14px rgba(0,0,0,.25); }
+.how::before { content: ''; position: absolute; left: 30px; top: 30px; bottom: 30px; border-left: 2px dashed var(--line-2); }
+.how-i { position: relative; display: flex; align-items: center; gap: 14px; min-height: 60px; }
+.how-n {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+  font: 700 13px/1 var(--f-disp);
+  background: var(--s2); color: var(--tx);
+  box-shadow: 0 0 0 4px var(--s1), inset 0 0 0 1px var(--line-2);
+}
+.how-t { flex: 1; min-width: 0; }
+.how-t b { display: block; font-size: 15px; font-weight: 600; }
+.how-t small { display: block; margin-top: 1px; font-size: 12.5px; color: var(--mu); }
+.how-r { flex: none; font: 700 14px/1 var(--f-disp); letter-spacing: -.02em; color: var(--ok); }
 
 .link-box {
   display: flex; align-items: center; gap: 12px;
@@ -557,19 +731,66 @@ button.row:active { background: rgba(255,255,255,.025); }
 .copy svg { width: 19px; height: 19px; }
 .copy.done { background: rgba(63,208,142,.15); color: var(--ok); }
 
-.earn {
-  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+.btn-ok {
+  height: 46px; padding: 0 16px;
+  color: #04170D;
+  background: var(--ok);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 22px -12px rgba(63,208,142,.9);
+}
+.btn-ok[disabled] { background: var(--s2); color: var(--di); box-shadow: inset 0 0 0 1px var(--line); cursor: default; scale: 1; }
+.rbal {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
   margin-top: 12px; padding: 16px;
   border-radius: var(--r-lg);
-  background: linear-gradient(160deg, rgba(63,208,142,.09), var(--s1) 62%);
+  background: linear-gradient(160deg, rgba(63,208,142,.1), var(--s1) 62%);
   box-shadow: inset 0 0 0 1px var(--line);
 }
-.earn small { display: block; font-size: 12.5px; color: var(--mu); }
-.earn b { display: block; margin-top: 4px; font: 600 24px/1.1 var(--f-disp); letter-spacing: -.03em; color: var(--ok); }
-.earn span { display: block; margin-top: 4px; font-size: 12px; color: var(--di); }
-.earn-bars { display: flex; align-items: flex-end; gap: 4px; height: 52px; }
-.earn-bars i { width: 9px; border-radius: 3px; background: rgba(63,208,142,.25); transform-origin: bottom; }
-.earn-bars i:last-child { background: var(--ok); }
+.rbal-t { min-width: 0; }
+.rbal-t small { display: block; font-size: 12.5px; color: var(--mu); }
+.rbal-t b { display: flex; align-items: baseline; gap: 5px; margin-top: 4px; font: 600 26px/1.1 var(--f-disp); letter-spacing: -.03em; color: var(--ok); white-space: nowrap; }
+.rbal-t span { display: block; margin-top: 4px; font-size: 12px; color: var(--di); }
+
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 6px 0; }
+.sec-h b { font: 600 17px/1.2 var(--f-disp); letter-spacing: -.015em; }
+.sec-h span { font-size: 12.5px; color: var(--mu); }
+.fr { align-items: flex-start; }
+.fr-ava {
+  flex: none; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  font: 700 15px/1 var(--f-disp); color: #fff;
+  background: radial-gradient(circle at 34% 28%, color-mix(in oklab, var(--c) 65%, #fff), var(--c) 50%, color-mix(in oklab, var(--c) 55%, #000));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+}
+.fr-t { flex: 1; min-width: 0; display: block; }
+.fr-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.fr-top b { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fr-got { flex: none; font: 700 13px/1 var(--f-disp); color: var(--di); }
+.fr-got.on { color: var(--ok); }
+.fr-track { display: flex; align-items: center; gap: 4px; margin: 9px 0 6px; }
+.tr { position: relative; display: block; height: 6px; border-radius: 3px; overflow: hidden; background: var(--s3); }
+.tr.a { flex: 1; }
+.tr.b { flex: 2.4; }
+.tr > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: linear-gradient(90deg, #2BA56E, var(--ok)); }
+.ms {
+  flex: none;
+  height: 20px; padding: 0 6px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font: 700 10.5px/1 var(--f-disp); letter-spacing: -.03em;
+  color: var(--di);
+  background: var(--s2);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+.ms.on { color: #0E3B25; background: linear-gradient(160deg, #C9F2D6, #7FD3A0); box-shadow: inset 0 0 0 1px rgba(30,100,60,.5); }
+.fr small { display: block; font-size: 12.5px; color: var(--mu); }
+.more { margin: 12px 6px 0; font-size: 12.5px; color: var(--di); text-align: center; }
+
+/* болтливость */
+.talk { margin-top: 12px; padding: 14px; border-radius: var(--r-lg); background: var(--surf); box-shadow: inset 0 0 0 1px var(--line); }
+.talk-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 0 2px 12px; }
+.talk-h b { font-size: 15px; font-weight: 600; }
+.talk-h small { font-size: 12.5px; color: var(--mu); text-align: right; }
+.talk .seg { background: var(--s2); }
 
 /* ───────── settings ───────── */
 .toggle { position: relative; flex: none; width: 50px; height: 30px; border-radius: 15px; background: var(--s3); transition: background .25s; }
@@ -668,13 +889,14 @@ button.row:active { background: rgba(255,255,255,.025); }
   border-radius: 22px;
   overflow: hidden;
   isolation: isolate;
-  background: radial-gradient(100% 100% at 50% 45%, #3F7EFF, #1C49CC 32%, #0C2069 66%, #06102E);
+  background: radial-gradient(90% 110% at 74% 45%, #3F7EFF, #1C49CC 32%, #0C2069 66%, #06102E);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
 }
 .s-hero[hidden] { display: none; }
 .s-pat { position: absolute; inset: 0; width: 100%; height: 100%; color: #0A1F68; opacity: .8; }
-.s-glow { left: 50%; right: auto; top: -40px; translate: -50% 0; width: 260px; height: 260px; }
-.s-mascot { position: absolute; z-index: 2; left: 50%; top: 18px; width: 132px; translate: -50% 0; }
+.s-glow { right: -4px; top: -40px; width: 260px; height: 260px; }
+.s-mascot { position: absolute; z-index: 2; right: 30px; top: 18px; width: 132px; cursor: grab; }
+.s-bub { right: 170px; top: 40px; }
 .s-sec { margin-top: 16px; }
 .s-label { font-size: 13px; color: var(--mu); margin: 0 4px 8px; }
 .s-amt {
@@ -847,14 +1069,18 @@ button.row:active { background: rgba(255,255,255,.025); }
     <div class="list assets" id="assets"></div>
 
     <div class="board" aria-label="Курсы обмена">
-      <div class="board-top"><span>Табло</span><span class="board-live"><i></i>обновляется каждые 15 с</span></div>
+      <div class="board-top"><span>Курсы</span><span class="board-live"><i></i>живые</span></div>
+      <div class="marq" aria-hidden="true"><div class="marq-in" id="marq"></div></div>
       <div class="board-head"><span>Валюта</span><span>Покупаем</span><span>Продаём</span></div>
       <div id="boardRows"></div>
     </div>
 
     <button class="promo" data-go="ref">
-      <span class="promo-art"><svg class="promo-pat" id="promoPat" viewBox="0 0 64 64"></svg><b>10%</b></span>
-      <span class="promo-t"><b>Бонус за друзей</b><small>10% с каждого их обмена</small></span>
+      <span class="promo-art" aria-hidden="true">
+        <span class="cash c2"><b>100</b></span>
+        <span class="cash"><b>100</b><i>₽</i></span>
+      </span>
+      <span class="promo-t"><b>100 ₽ за каждого друга</b><small>и ещё 100 ₽, когда он наменяет на 10 000 ₽</small></span>
       <svg class="chev"><use href="#i-chev-r"/></svg>
     </button>
   </section>
@@ -870,8 +1096,14 @@ button.row:active { background: rgba(255,255,255,.025); }
       </button>
     </header>
 
+    <div class="x-peek">
+      <div class="bubble x-bub" id="xBubble"></div>
+      <div class="x-mascot" id="xMascot"></div>
+    </div>
+
     <div class="xstack">
-      <div class="xcard">
+      <div class="xcard x-first">
+        <i class="grip l" aria-hidden="true"></i><i class="grip r" aria-hidden="true"></i>
         <div class="x-head"><span>Отдаю</span><button class="x-bal" id="xBal">Баланс: —</button></div>
         <div class="x-row">
           <button class="x-cur" id="xGiveCur" data-side="give"></button>
@@ -897,14 +1129,14 @@ button.row:active { background: rgba(255,255,255,.025); }
     <dl class="kv" id="xKv"></dl>
 
     <button class="btn btn-primary btn-xl" id="xGo"><svg><use href="#i-swap-h"/></svg><span id="xGoText">Обменять</span></button>
-    <p class="fine">Обмен внутри кошелька проходит мгновенно. Курс держим 60 секунд, потом обновляем.</p>
+    <p class="fine">Курс держим минуту. Не успел — обновим, без обид. Меняем от 100 ₽.</p>
   </section>
 
   <!-- ═════════ ИСТОРИЯ ═════════ -->
   <section class="view" id="v-history" data-view="history">
     <header class="hh">
       <span class="hh-ico"><svg><use href="#i-clock"/></svg></span>
-      <div><h1>История операций</h1><p>Все движения по кошельку</p></div>
+      <div><h1>История</h1><p id="hSum">Меняла всё записывает</p></div>
     </header>
     <div class="seg" id="seg">
       <i class="seg-ind" id="segInd"></i>
@@ -930,21 +1162,24 @@ button.row:active { background: rgba(255,255,255,.025); }
       <div class="me-t">
         <div class="me-name">@username</div>
         <div class="me-id">ID 843 726 <button class="mini-copy" data-copy="843726" aria-label="Скопировать ID"><svg><use href="#i-copy"/></svg></button></div>
-        <span class="prem"><svg><use href="#i-crown"/></svg>Премиум</span>
+        <div class="me-since">с Менялой с 3 марта</div>
       </div>
     </div>
 
+    <button class="fun" id="fun" aria-label="Сколько наменял — в шаурме и не только">
+      <span class="fun-l"><small>Наменял за всё время</small><b><number-flow id="funTotal" class="nf-money"></number-flow> ₽</b><span class="fun-tap">тапни — пересчитаю</span></span>
+      <span class="fun-r"><span class="fun-n">≈ <b id="funN">160</b></span><small id="funU">шаурм</small></span>
+    </button>
+
     <div class="duo">
-      <button class="stat" data-go="ref"><span class="stat-ico"><svg><use href="#i-gift"/></svg></span><span>Реферальный баланс</span><b>12,50 ₽</b></button>
-      <button class="stat" data-go="ref"><span class="stat-ico"><svg><use href="#i-users"/></svg></span><span>Всего друзей</span><b>24</b></button>
+      <button class="stat" data-go="ref"><span class="stat-ico"><svg><use href="#i-gift"/></svg></span><span>Реф-баланс</span><b id="pRefBal">1 700 ₽</b></button>
+      <button class="stat" data-go="ref"><span class="stat-ico"><svg><use href="#i-users"/></svg></span><span>Друзей</span><b>24</b></button>
     </div>
 
     <div class="list menu">
-      <button class="row" data-go="ref"><span class="ri"><svg><use href="#i-users"/></svg></span><span class="row-t"><b>Реферальная программа</b></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="Уровень «Премиум»: спред −0,2%, вывод без очереди"><span class="ri"><svg><use href="#i-layers"/></svg></span><span class="row-t"><b>Уровень и привилегии</b></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="2FA включена · вход по Telegram"><span class="ri"><svg><use href="#i-shield"/></svg></span><span class="row-t"><b>Безопасность</b></span><span class="row-v ok">2FA</span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="Пишите — отвечаем за пару минут"><span class="ri"><svg><use href="#i-headset"/></svg></span><span class="row-t"><b>Поддержка</b></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="Меняла 2.0 · сборка 1142"><span class="ri"><svg><use href="#i-info"/></svg></span><span class="row-t"><b>О приложении</b></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
+      <button class="row" data-go="ref"><span class="ri"><svg><use href="#i-users"/></svg></span><span class="row-t"><b>Реферальная программа</b><small>100 ₽ за каждого друга</small></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
+      <button class="row" id="limitsBtn"><span class="ri"><svg><use href="#g-pct"/></svg></span><span class="row-t"><b>Лимиты и комиссии</b><small>без мелкого шрифта</small></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
+      <button class="row" data-toast="Пиши — живой человек ответит за пару минут"><span class="ri"><svg><use href="#i-headset"/></svg></span><span class="row-t"><b>Поддержка</b><small>живые люди, 24/7</small></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
     </div>
   </section>
 
@@ -959,29 +1194,36 @@ button.row:active { background: rgba(255,255,255,.025); }
       <div class="bal-glow ref-glow"></div>
       <div class="ref-duo">
         <div class="ref-big" id="refBig"></div>
-        <div class="ref-small" id="refSmall">
-          <svg class="ref-crown" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crown"/></svg>
-        </div>
+        <div class="ref-small" id="refSmall"></div>
       </div>
-      <span class="ref-coin">+10%</span>
-      <div class="ref-text">Зови друзей — забирай 10%<br />с каждого их обмена</div>
+      <span class="cash ref-cash" aria-hidden="true"><b>100</b><i>₽</i></span>
+      <div class="bubble ref-bub" id="refBubble"></div>
+      <div class="ref-text">
+        <b>100 ₽</b>
+        <span>за каждого друга,<br />который поменяет от 1 000 ₽</span>
+      </div>
     </div>
 
-    <div class="list">
-      <div class="row"><span class="ri ri-blue"><svg><use href="#i-gift"/></svg></span><span class="row-t"><small>Ваш бонус</small><b>10% от их обменов</b></span></div>
-      <div class="row"><span class="ri ri-blue"><svg><use href="#i-users"/></svg></span><span class="row-t"><small>Ваши друзья</small><b>24 человека · 9 активных</b></span></div>
+    <div class="how">
+      <div class="how-i"><span class="how-n">1</span><span class="how-t"><b>Кидаешь ссылку другу</b><small>в чат, маме, коллеге, коту</small></span></div>
+      <div class="how-i"><span class="how-n">2</span><span class="how-t"><b>Друг меняет от 1 000 ₽</b><small>сотка падает тебе сразу</small></span><span class="how-r">+100 ₽</span></div>
+      <div class="how-i"><span class="how-n">3</span><span class="how-t"><b>Друг наменял 10 000 ₽</b><small>за всё время — ещё сотка сверху</small></span><span class="how-r">+100 ₽</span></div>
     </div>
 
     <div class="link-box">
-      <div class="link-t"><small>Ваша ссылка</small><code id="refLink">t.me/menyala_bot?start=r843726</code></div>
+      <div class="link-t"><small>Твоя ссылка</small><code id="refLink">t.me/menyala_bot?start=r843726</code></div>
       <button class="copy" data-copy="https://t.me/menyala_bot?start=r843726" aria-label="Скопировать ссылку"><svg><use href="#i-copy"/></svg></button>
     </div>
-    <button class="btn btn-primary btn-xl" id="shareRef"><svg><use href="#i-plane"/></svg>Поделиться ссылкой</button>
+    <button class="btn btn-primary btn-xl" id="shareRef"><svg><use href="#i-plane"/></svg>Позвать друзей</button>
 
-    <div class="earn">
-      <div><small>Ваш доход</small><b>+245,50 ₽</b><span>за всё время · 8 недель</span></div>
-      <div class="earn-bars" id="earnBars"></div>
+    <div class="rbal">
+      <div class="rbal-t"><small>На реф-балансе</small><b><number-flow id="refBal"></number-flow> ₽</b><span id="refMeta">всего заработано 2 300 ₽</span></div>
+      <button class="btn btn-ok" id="refClaim"><svg><use href="#i-in"/></svg>Забрать</button>
     </div>
+
+    <div class="sec-h"><b>Друзья</b><span id="frMeta">24 друга · 12 уже меняли</span></div>
+    <div class="list friends" id="friends"></div>
+    <p class="more">и ещё 18 — листать не будем, ты понял</p>
   </section>
 
   <!-- ═════════ НАСТРОЙКИ ═════════ -->
@@ -993,19 +1235,26 @@ button.row:active { background: rgba(255,255,255,.025); }
     <div class="list">
       <div class="row"><span class="ri"><svg><use href="#i-bell"/></svg></span><span class="row-t"><b>Уведомления</b><small>о зачислениях и курсе</small></span><button class="toggle on" id="tgNotif" role="switch" aria-checked="true" aria-label="Уведомления"><i></i></button></div>
       <div class="row"><span class="ri"><svg><use href="#i-lock"/></svg></span><span class="row-t"><b>Скрывать баланс</b><small>при открытии приложения</small></span><button class="toggle" id="tgHide" role="switch" aria-checked="false" aria-label="Скрывать баланс"><i></i></button></div>
-      <button class="row" data-toast="2FA включена · вход по Telegram"><span class="ri"><svg><use href="#i-shield"/></svg></span><span class="row-t"><b>Безопасность</b></span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="Пока только ночная — светлую нарисуем позже"><span class="ri"><svg><use href="#i-moon"/></svg></span><span class="row-t"><b>Тема</b></span><span class="row-v">Ночь</span><svg class="chev"><use href="#i-chev-r"/></svg></button>
-      <button class="row" data-toast="Русский · English скоро"><span class="ri"><svg><use href="#i-globe"/></svg></span><span class="row-t"><b>Язык</b></span><span class="row-v">Русский</span><svg class="chev"><use href="#i-chev-r"/></svg></button>
     </div>
 
-    <button class="support" data-toast="Пишите — отвечаем за пару минут">
+    <div class="talk">
+      <div class="talk-h"><b>Болтливость Менялы</b><small id="talkHint">говорит по делу</small></div>
+      <div class="seg" id="talkSeg">
+        <i class="seg-ind"></i>
+        <button data-t="0">Молчун</button>
+        <button data-t="1" class="on">Норм</button>
+        <button data-t="2">Болтун</button>
+      </div>
+    </div>
+
+    <button class="support" data-toast="Пиши — живой человек ответит за пару минут">
       <span class="support-ico"><svg><use href="#i-headset"/></svg></span>
-      <span class="row-t"><b>Поддержка</b><small>Живой человек на связи 24/7</small></span>
+      <span class="row-t"><b>Поддержка</b><small>Живые люди на связи 24/7</small></span>
       <svg class="chev"><use href="#i-chev-r"/></svg>
     </button>
 
     <button class="logout" id="logout"><svg><use href="#i-logout"/></svg>Выйти из аккаунта</button>
-    <p class="ver">Меняла 2.0 · сборка 1142</p>
+    <p class="ver">Меняла 2.1 · сделано с любовью к деньгам</p>
   </section>
 </div>
 
@@ -1029,6 +1278,7 @@ button.row:active { background: rgba(255,255,255,.025); }
       <svg class="s-pat" id="sPat" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
       <div class="bal-glow s-glow"></div>
       <div class="s-mascot" id="sMascot"></div>
+      <div class="bubble s-bub" id="sBubble"></div>
     </div>
     <div class="sheet-head"><h3 id="sTitle"></h3><p id="sSub"></p></div>
     <div id="sBody"></div>
@@ -1505,23 +1755,384 @@ function createMascot(host) {
     setMood(on ? 'closed' : 'tough', 0.3);
   }
 
-  return { el: svg, sleep, dropCoin, glint, hop, look, nudge, swap, no, wow, poke, process, stopProcess, success, enter, reset, blink, mood: setMood, turnKnob };
+  // мелкая моторика в простое — чтобы было видно, что он живой
+  function fidget() {
+    if (mood === 'closed' || loops.length) return;
+    const r = Math.random();
+    if (r < 0.28) {
+      // оглядывается по сторонам
+      lx(-4.6); ly(0.6);
+      setTimeout(() => lx(4.6), 750);
+      setTimeout(() => { lx(0); ly(0); }, 1500);
+    } else if (r < 0.52) {
+      // пересчитывает купюры во рту
+      gsap.timeline()
+        .to(el.bill, { y: -12, duration: 0.12, ease: 'power2.out', repeat: 5, yoyo: true })
+        .to(el.bill, { y: -28, duration: 0.15 });
+      [0, 0.2, 0.4].forEach((d) => gsap.delayedCall(d, () => turnKnob(12, 0.12, 'power2.out')));
+    } else if (r < 0.7) {
+      glint();
+    } else if (r < 0.86) {
+      // щёлкает кодом
+      [0, 0.16, 0.32].forEach((d, i) => gsap.delayedCall(d, () => turnKnob(i === 2 ? 60 : -18, 0.14, 'power3.out')));
+    } else {
+      // зевает
+      const m = MOODS[mood];
+      gsap.timeline()
+        .to(el.lid, { scaleY: 0.72, duration: 0.5, ease: 'sine.inOut' })
+        .to(el.rig, { scaleY: 1.03, svgOrigin: BASE, duration: 0.5, ease: 'sine.inOut' }, 0)
+        .to(el.lid, { scaleY: m.lid, duration: 0.3, ease: 'power2.out' }, '+=.5')
+        .to(el.rig, { scaleY: 1, duration: 0.4, ease: 'sine.out' }, '<');
+    }
+  }
+
+  // пасхалка: выплёвывает монету из щели на макушке
+  function spit() {
+    moodFor('wow', 1400);
+    gsap.timeline()
+      .to(el.rig, { scaleY: 0.88, scaleX: 1.08, svgOrigin: BASE, duration: 0.1 })
+      .set(el.coin, { y: 30, opacity: 1, scaleX: 1, transformOrigin: '50% 50%' })
+      .to(el.rig, { scaleY: 1, scaleX: 1, duration: 0.5, ease: 'elastic.out(1,.35)' })
+      .to(el.coin, { y: -70, duration: 0.35, ease: 'power2.out' }, '<')
+      .to(el.coin, { scaleX: 0.2, duration: 0.09, repeat: 3, yoyo: true }, '<')
+      .set(el.coin, { opacity: 0 });
+    glint();
+  }
+
+  return { el: svg, sleep, dropCoin, glint, hop, look, nudge, swap, no, wow, poke, process, stopProcess, success, enter, reset, blink, mood: setMood, turnKnob, fidget, spit };
 }
 
-/* Меняла 2.0 — кошелёк + обменник.
-   В области видимости уже есть: gsap, createMascot, createPattern (склеивает build.py). */
+/* Что говорит Меняла. Ключ — ситуация, значение — список фраз (берутся по кругу, без повторов подряд).
+   Хочешь добавить — просто допиши строку в нужный список. Держи фразы короче ~45 символов, чтобы влезали в пузырь. */
+
+const LINES = {
+  /* ── приветствие по времени суток ── */
+  greet_morning: [
+    'Доброе утро. Сейф проснулся раньше тебя',
+    'Утро. Кофе нет, курс есть',
+    'Кто рано встаёт, тому курс подаёт',
+    'Доброе. Я уже всё пересчитал. Дважды',
+    'Утро. Протёр глаз, начистил зуб',
+    'С добрым утром. Деньги не разбежались',
+  ],
+  greet_day: [
+    'О, хозяин пришёл',
+    'Здорово. Всё под замком',
+    'На месте. Сейф прогрет',
+    'Заходи, будка открыта',
+    'Привет. Курс свежий, сам выбирал',
+    'Явился. А я тут сторожу',
+  ],
+  greet_evening: [
+    'Добрый вечер. Самое время что-то поменять',
+    'Вечер. Сейф на посту, глаз на курсе',
+    'Вечерком курс такой же. Но атмосфернее',
+    'Вечер добрый. Всё на месте, я проверял',
+  ],
+  greet_night: [
+    'Ты чего не спишь? Я-то сейф, мне можно',
+    'Ночная смена. Говори шёпотом',
+    'Ночь. Курс не спит, и я не сплю',
+    'Не спится? Давай хоть поменяем что-нибудь',
+    'Три ночи — лучшее время для обмена. Наверное',
+  ],
+
+  /* ── болтовня, пока ничего не происходит ── */
+  idle: [
+    'Пересчитал. Всё сходится',
+    'Скучно. Давай что-нибудь поменяем',
+    'Биткоин опять что-то задумал',
+    'Я не толстый. Я бронированный',
+    'Зуб золотой. Настоящий. Не трогай',
+    'Кручу диск. Успокаивает',
+    'Сейфы не спят. Мы моргаем',
+    'Тихо как-то. Подозрительно',
+    'Деньги любят тишину. А я люблю деньги',
+    'Был бы второй глаз — подмигнул бы',
+    'Мой дед был копилкой. Глиняной. Светлая память',
+    'Код от себя не помню. Это нормально?',
+    'Стою. Охраняю. Красивый',
+    'Один глаз, один зуб, ноль выходных',
+    'Купюроприёмник чешется',
+    'Курс как погода: смотри и не ной',
+    'Работаю без обеда. Ем только купюры',
+    'Если что — я тут. Я всегда тут',
+    'У меня четыре валюты и одна мечта',
+    'Скрипнуло? Это не я. Это рынок',
+    'Хочешь анекдот? Комиссия 0,5%. Всё',
+    'Протираю зуб. Блеск — часть сервиса',
+    'Мне бы ручки. Обнимал бы баланс',
+    'Не смотри так. Я стесняюсь',
+    'Внутри тепло и уютно. Деньгам нравится',
+    'Мама говорила: будь сейфом, сынок. Стал',
+    'Говорят, я похож на стиралку. Обидно',
+    'Я не ворчу. Я так шуршу',
+    'Ни одной копейки не пропало. Я считал',
+    'Если долго смотреть в глаз, курс растёт. Не проверено',
+    'Сейф — это не работа. Это призвание',
+    'Покормил бы меня. Купюрой',
+    'Я бы улыбнулся, но у меня купюроприёмник',
+    'Ногами не пинать. Я на них стою',
+    'Брови — два бруска стали. Хмурюсь профессионально',
+    'Курс посмотрел. Брови нахмурил. Всё как обычно',
+    'Сегодня без происшествий. Даже скучно',
+    'Тыкни меня. Только аккуратно',
+  ],
+  idle_x: [
+    'Вводи сумму. Не стесняйся',
+    'Курс держу. Руки устали. Шучу, рук нет',
+    'Цифры сами себя не впишут',
+    'Ну? Меняем или любуемся?',
+    'Я терпеливый. Я сейф',
+    'Сверху отдаёшь, снизу получаешь. Всё',
+    'Крутани кнопку посередине. Мне нравится',
+    'Курс в окошке честный. Сам проверял',
+    'Смотрю на тебя из-за прилавка',
+    'Подержусь за краешек, не против?',
+  ],
+  idle_hidden: [
+    'Хррр…',
+    'Сплю. Деньги тоже спят',
+    'Тсс. Я в режиме невидимки',
+    'Мне снятся купюры. Много купюр',
+    'Не буди. Я считаю овец. В рублях',
+  ],
+  idle_ref: [
+    'Сотка за друга. Без звёздочек и мелкого шрифта',
+    'Друзья — тоже валюта. Особенно которые меняют',
+    'Позови хоть кота. Поменяет от 1 000 — сотка твоя',
+    'У тебя же есть друзья? Ну хоть один?',
+    'Чем больше друзей, тем толще сейф',
+    'Я бы позвал своих, но они все сейфы',
+  ],
+  afk: [
+    'Ты тут? Моргни, если тут',
+    'Ау. Я всё ещё сейф',
+    'Ушёл? Ладно, посторожу',
+  ],
+
+  /* ── тычки в маскота: сначала по порядку, потом вразнобой ── */
+  poke_seq: [
+    'Чё надо?',
+    'Руки убрал',
+    'Я при исполнении',
+    'Это бронированный корпус, вообще-то',
+    'Щекотно, между прочим',
+    'Ещё раз — и я закрываюсь',
+    'Ладно. Чего хотел?',
+    'Я запомнил твой ID',
+    'Ты так экран протрёшь',
+    'Всё. Обиделся',
+    '…',
+    '……',
+    'Ладно, мир',
+    'Ну ты упорный',
+  ],
+  poke: [
+    'Тыц',
+    'Ай',
+    'Не по глазу!',
+    'Осторожно, свежая покраска',
+    'Я сейф, а не кнопка лифта',
+    'Тыкать в Менялу бесплатно. Пока',
+    'Эй, полегче',
+    'Палец убери, отпечатки оставишь',
+    'Это был мой зуб!',
+    'Щёлк. Не открылся. И не откроюсь',
+  ],
+  poke_hidden: [
+    'Сплю. Всё закрыто',
+    'Хррр… не мешай',
+    'Разбудишь — будет комиссия. Шучу',
+    'Я невидимка. Ты меня не видишь',
+  ],
+  spit: [
+    'На, только отстань',
+    'Держи монетку. И иди меняй',
+  ],
+
+  /* ── глаз (скрыть баланс) ── */
+  hide: [
+    'Никому не скажу',
+    'Глаз закрыт — баланс тоже',
+    'Тсс. Кто-то подглядывает?',
+    'Режим ниндзя включён',
+    'Спрятал. Даже я не вижу',
+  ],
+  show: [
+    'Всё на месте',
+    'Открыл. Пересчитал. Сходится',
+    'Смотри, только не завидуй',
+    'Вот они, родные',
+    'Проснулся. Ничего не пропало',
+  ],
+
+  /* ── экран обмена ── */
+  x_hello: [
+    'Чего меняем?',
+    'Будка открыта. Давай сумму',
+    'Меняем? Меняем',
+    'Подходи, не толпись',
+    'Курс горячий, пока горячий',
+    'Глаз один, но очень внимательный',
+  ],
+  amt_zero: [
+    'Ноль — тоже сумма. Но не для меня',
+    'Пусто. Как в кармане до зарплаты',
+    'Нолик. Красиво, но бесполезно',
+  ],
+  amt_min: [
+    'Меньше сотки не меняю. Гордость',
+    'Мелковато. От 100 ₽, дружище',
+    'Это на сдачу? Минимум 100 ₽',
+  ],
+  amt_tiny: [
+    'На шаурму хватит',
+    'Скромно, но со вкусом',
+    'С малого начинают все. Я — с копилки',
+    'Мелочь, а приятно',
+  ],
+  amt_small: [
+    'Нормально. Работаем',
+    'Солидно',
+    'Уважаю',
+    'Принято. Щас сделаем',
+    'Хорошая сумма. Почти круглая',
+    'Вот это по-нашему',
+  ],
+  amt_mid: [
+    'О, пошли серьёзные деньги',
+    'Бровь приподнял',
+    'Вот это я понимаю',
+    'Сейф одобряет',
+    'Это уже не шаурма. Это ресторан',
+    'Глаз загорелся',
+  ],
+  amt_big: [
+    'Ого. Протру глаз',
+    'Тише, соседи услышат',
+    'Зуб засиял',
+    'Вот это поворот',
+    'Аж дверца скрипнула',
+    'Сейчас буду уважать тебя ещё больше',
+  ],
+  amt_huge: [
+    'Мне надо присесть. Стульев нет',
+    'Олигарх в чате',
+    'Я вспотел. Сейфы не потеют!',
+    'Пересчитал на всякий. Да, всё верно',
+    'Можно я тебя сфоткаю? Глазом',
+  ],
+  amt_over: [
+    'Столько у тебя нет. Я проверял',
+    'Хорошая попытка',
+    'Мечтать не вредно. Но баланс — вот',
+    'Это больше, чем в сейфе',
+    'Сейф не резиновый. И не печатный станок',
+    'Нарисовать не могу. Я сейф, а не художник',
+  ],
+  all_in: [
+    'Всё и сразу? Уважаю',
+    'Ва-банк',
+    'Выгребаем до копейки',
+    'Подметаем сейф',
+  ],
+  swap: [
+    'Крутанули!',
+    'Наоборот? Можно и наоборот',
+    'Туда-сюда — деньги любят движение',
+    'Перевернул. Голова кружится',
+    'Меняем местами. Как носки',
+    'Оп! Фокус',
+  ],
+  coin_rub: ['Рубль. Свой, родной', 'Рубли. Классика жанра', 'Деревянные? Не обижай, они стальные'],
+  coin_usdt: ['USDT. Стабильный. Как я', 'Цифровой доллар. Шуршит тихо'],
+  coin_ton: ['TON. Свой, телеграмный', 'TON. Из тех же краёв, что и я'],
+  coin_btc: ['Биткоин. Классика', 'Цифровое золото. Люблю. После зуба', 'Биткоин? Уважаемый человек'],
+  coin_eth: ['Эфир. Для умных', 'ETH. Контракты умные, ты тоже'],
+  lock_low: [
+    'Курс горит! Успевай',
+    'Тик-так. Курс уходит',
+    'Ещё чуть-чуть — и обновлю',
+    'Минута почти всё. Жми, если решил',
+  ],
+  lock_new: ['Курс обновил. Свеженький', 'Новый курс подъехал', 'Перевесил ценники'],
+  board: ['Это табло. Как на вокзале, только про деньги', 'Тыкни в строчку — сразу поменяем'],
+
+  /* ── подтверждение: «зажми и держи» ── */
+  confirm: [
+    'Проверь цифры. Я проверил',
+    'Ну что, по рукам?',
+    'Зажимай кнопку. Я открою сейф',
+    'Последний шанс передумать. Шучу, не последний',
+  ],
+  hold_go: ['Держи… держи…', 'Кручу диск…', 'Ещё чуть-чуть…', 'Взламываю. Свой же сейф'],
+  hold_fail: ['Не дожал', 'Рано отпустил. Сейф закрыт', 'Ещё раз и подольше', 'Почти! Держи до конца'],
+  hold_tap: ['Не тыкай. Зажми и держи', 'Это не кнопка лифта. Держать надо'],
+  success: [
+    'Сделано. Красиво',
+    'Вжух — и готово',
+    'Как по маслу',
+    'Чистая работа',
+    'Чек держи. Не теряй',
+    'Обменяно. Я молодец. Ты тоже',
+    'Готово. Можно хлопать',
+  ],
+  cancel: ['Передумал? Бывает', 'Ладно, в другой раз', 'Закрыл обратно. Ничего не трогал'],
+
+  /* ── пополнение / вывод ── */
+  dep_open: ['Неси денежку', 'Открываю дверцу. Клади', 'Сейф голодный'],
+  wd_open: ['Куда отправляем?', 'Отпускаю с тяжёлым сердцем', 'Достаю. Аккуратно'],
+  dep_done: ['Положил в сейф', 'Ням. Вкусно', 'Принято на хранение', 'Вклад засчитан. Глаз доволен'],
+  wd_done: ['Отправил. Жди', 'Улетели. Пиши, как дойдут', 'Отпустил. Сердце сейфа плачет', 'Ушли по адресу. Я проследил'],
+  bell: ['Пополнение едет. Жди', 'Звенит? Это деньги к тебе идут'],
+  copy: ['Скопировал. Не потеряй', 'В буфере. Как в сейфе, только мягче'],
+  limits: ['Всё честно. Мелкого шрифта нет', 'Комиссии маленькие. Как моя зарплата'],
+
+  /* ── рефка ── */
+  ref_hello: ['Сотка за друга. Всё честно', 'Зови друзей — забирай сотки', 'Тут платят за дружбу. Официально'],
+  share: ['Кидай всем. Каждый — сотка', 'Разошли по чатам. Я подожду', 'Маме тоже кинь. Мамы любят обмен'],
+  claim: ['Забрал? Красавчик', 'Сотки в кошельке. Тратить не спеши', 'Перевёл. Друзья окупились'],
+  claim_empty: ['Пока забирать нечего. Зови друзей', 'Пусто. Друзья ещё не наменяли'],
+
+  /* ── низ чека ── */
+  receipt: [
+    'СПАСИБО. ЗАХОДИ ЕЩЁ',
+    'ХОРОШЕГО ДНЯ. ЗУБ ПЕРЕДАЁТ ПРИВЕТ',
+    'ЧЕК НЕ ВЫБРАСЫВАТЬ. ОН КРАСИВЫЙ',
+    'МЕНЯЛА БЛАГОДАРИТ ЗА ДОВЕРИЕ',
+    'СДАЧУ ПРОВЕРЯЙ, НЕ ОТХОДЯ ОТ СЕЙФА',
+  ],
+
+  /* ── бегущая строка на табло ── */
+  marquee: [
+    'МЕНЯЕМ 24/7',
+    'КУРС ДЕРЖИМ МИНУТУ',
+    'БЕЗ ВЫХОДНЫХ И ОБЕДА',
+    '100 ₽ ЗА ДРУГА',
+    'ЗОЛОТОЙ ЗУБ НЕ ПРОДАЁТСЯ',
+    'СДАЧА ДО КОПЕЙКИ',
+    'ТЫКАТЬ В МЕНЯЛУ БЕСПЛАТНО',
+  ],
+};
+
+/* Меняла 2.1 — кошелёк + обменник.
+   В области видимости уже есть: gsap, createMascot, createPattern, LINES (склеивает build.py). */
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const ico = (id) => `<svg><use href="#${id}"/></svg>`;
-const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const tg = window.Telegram && window.Telegram.WebApp;
 const haptic = (t = 'light') => { try { tg && tg.HapticFeedback.impactOccurred(t); } catch (e) {} };
+const tick = () => { try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {} };
+const plural = (n, f) => { const a = Math.abs(Math.floor(n)) % 100, b = a % 10; return f[a > 10 && a < 20 ? 2 : b > 1 && b < 5 ? 1 : b === 1 ? 0 : 2]; };
+const nowHM = () => new Date().toTimeString().slice(0, 5);
 
 /* ───────── format ───────── */
 const nfc = {};
 const nf = (min, max = min) => (nfc[min + '-' + max] = nfc[min + '-' + max] || new Intl.NumberFormat('ru-RU', { minimumFractionDigits: min, maximumFractionDigits: max }));
 const money = (v) => nf(2).format(v);
+const int = (v) => nf(0).format(v);
 const amt = (v, c) => (c.id === 'rub' ? nf(2).format(v) : nf(0, c.dp).format(v));
 const unit = (c) => (c.id === 'rub' ? '₽' : c.code);
 const rateTxt = (v) => (v < 1000 ? nf(2).format(v) : nf(0).format(v));
@@ -1541,7 +2152,7 @@ import('https://cdn.jsdelivr.net/npm/number-flow@0.6.0/+esm')
   .then(() => flows.forEach((el) => { el.textContent = ''; flow(el, el._v, el._f); }))
   .catch(() => {});
 
-/* ───────── data (макет: курсы и балансы — заглушки) ───────── */
+/* ───────── data (макет: курсы, балансы и друзья — заглушки) ───────── */
 const COINS = {
   rub:  { id: 'rub',  code: 'RUB',  name: 'Рубль',    sub: 'основной счёт', glyph: 'g-rub',  a: '#E2E7F0', b: '#7A859B', rate: 1,       dp: 2 },
   usdt: { id: 'usdt', code: 'USDT', name: 'Tether',   sub: 'USDT · TRC-20', glyph: 'g-usdt', a: '#3FCB9B', b: '#0C5544', rate: 96.5,    dp: 2, net: 'TRC-20', netName: 'TRON',     ch: 0.08,  addr: 'TQ7mVb4kY2nP8xR1sLc9Hd3FwJ6eZu5AqX' },
@@ -1550,13 +2161,15 @@ const COINS = {
   eth:  { id: 'eth',  code: 'ETH',  name: 'Ethereum', sub: 'ETH · ERC-20',  glyph: 'g-eth',  a: '#9DA7FF', b: '#30368A', rate: 318450,  dp: 5, net: 'ERC-20', netName: 'Ethereum', ch: 0.87,  addr: '0x7a3F9c21B84e0D5f6A1c9E3b72D4f08C1e6B9a54' },
 };
 const ORDER = ['rub', 'usdt', 'ton', 'btc', 'eth'];
-const W = { rub: 24580, usdt: 312.35, ton: 18.4, btc: 0, eth: 0 };
-const FEE = 0.005, SPREAD = 0.014;
+const W = { rub: 164250, usdt: 312.35, ton: 18.4, btc: 0, eth: 0 };
+const FEE = 0.005, SPREAD = 0.014, MIN_RUB = 100;
 const total = () => ORDER.reduce((s, k) => s + W[k] * COINS[k].rate, 0);
+let swapped = 48230; // наменял за всё время, ₽
 
 const OPS = [
   { t: 'in',  title: 'Пополнение картой',  day: 'Сегодня',    time: '15:02', amt: '+5 000,00 ₽',  pos: true, st: 'wait' },
   { t: 'x',   title: 'Обмен RUB → USDT',   day: 'Сегодня',    time: '14:32', amt: '+10,35 USDT',  pos: true, st: 'ok', sub: '−1 000 ₽' },
+  { t: 'in',  title: 'Бонус за друга',     day: 'Вчера',      time: '19:48', amt: '+100,00 ₽',    pos: true, st: 'ok', sub: '@lena.crypto' },
   { t: 'out', title: 'Вывод на СБП',       day: 'Вчера',      time: '18:20', amt: '−1 000,00 ₽',  st: 'ok' },
   { t: 'in',  title: 'Пополнение по СБП',  day: '10 ноября',  time: '16:45', amt: '+2 000,00 ₽',  pos: true, st: 'ok' },
   { t: 'x',   title: 'Обмен USDT → RUB',   day: '10 ноября',  time: '12:17', amt: '+4 776,00 ₽',  pos: true, st: 'ok', sub: '−50 USDT' },
@@ -1566,16 +2179,29 @@ const OPS = [
 ];
 const ST = { ok: 'Успешно', wait: 'В обработке', fail: 'Отклонено' };
 
+// рефка: 100 ₽ за друга, который поменял от 1 000 ₽, и ещё 100 ₽, когда он наменял 10 000 ₽ за всё время
+const REF = { bal: 1700, earned: 2300, total: 24, active: 12, first: 1000, second: 10000, bonus: 100 };
+const FRIENDS = [
+  { n: '@vasya_k',     sum: 12480, c: '#5B8CFF' },
+  { n: '@lena.crypto', sum: 3400,  c: '#3FD08E' },
+  { n: '@dimon',       sum: 10150, c: '#9DA7FF' },
+  { n: '@katya_m',     sum: 1200,  c: '#FF7A90' },
+  { n: '@mike_ton',    sum: 650,   c: '#F5A94C' },
+  { n: '@sasha_b',     sum: 0,     c: '#8592A8' },
+];
+
+const S = { hidden: false, view: 'home', backTo: 'home', filter: 'all', talk: 1 };
+
 /* ───────── helpers ───────── */
 function toast(text) {
   const t = $('#toast');
   t.textContent = text;
   gsap.killTweensOf(t);
   gsap.fromTo(t, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'back.out(2)' });
-  gsap.to(t, { opacity: 0, y: -8, duration: 0.25, delay: 2 });
+  gsap.to(t, { opacity: 0, y: -8, duration: 0.25, delay: 2.2 });
 }
 function sanitize(str, dp) {
-  let v = str.replace(/[\s  ]/g, '').replace(/,/g, '.').replace(/[^\d.]/g, '');
+  let v = str.replace(/[\s  ]/g, '').replace(/,/g, '.').replace(/[^\d.]/g, '');
   const dot = v.indexOf('.');
   if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '');
   if (dp === 0) v = v.split('.')[0];
@@ -1585,13 +2211,13 @@ function sanitize(str, dp) {
 function displayRaw(raw) {
   if (!raw) return '';
   const [i, d] = raw.split('.');
-  const int = nf(0).format(Number(i || 0));
-  return d !== undefined ? `${int},${d}` : int;
+  const n = int(Number(i || 0));
+  return d !== undefined ? `${n},${d}` : n;
 }
 function fit(el, len) { el.style.fontSize = len > 11 ? '20px' : len > 9 ? '24px' : len > 7 ? '27px' : ''; }
 const coinHTML = (c, cls = '') => `<span class="coin ${c.id === 'rub' ? 'rub' : ''} ${cls}" style="--a:${c.a};--b:${c.b}">${ico(c.glyph)}</span>`;
 
-function seeded(seed) { let s = seed; return () => ((s = (s * 9301 + 49297) % 233280) / 233280); }
+function seeded(seed) { let s = seed % 233280; return () => ((s = (s * 9301 + 49297) % 233280) / 233280); }
 function spark(c) {
   const r = seeded(c.code.charCodeAt(0) * 7 + c.code.length);
   const pts = [];
@@ -1616,6 +2242,48 @@ function dialTicks(svg, n, cx, r1, r2, r1Major, majorEvery, gold = '#F2B94B', mi
   svg.innerHTML = s;
 }
 
+/* ───────── sheet refs (нужны голосу) ───────── */
+const sheetWrap = $('#sheet'), sheetPanel = $('#sheetPanel'), sheetDim = $('#sheetDim');
+const sheetOpen = () => sheetWrap.classList.contains('open');
+
+/* ───────── голос Менялы ───────── */
+const bags = {}, lastLine = {};
+function line(cat) {
+  const src = LINES[cat];
+  if (!src) return cat;
+  let b = bags[cat];
+  if (!b || !b.length) {
+    b = bags[cat] = src.slice().sort(() => Math.random() - 0.5);
+    if (b.length > 1 && b[b.length - 1] === lastLine[cat]) b.unshift(b.pop());
+  }
+  return (lastLine[cat] = b.pop());
+}
+function talker(el) {
+  let t;
+  return (text) => {
+    el.textContent = text;
+    clearTimeout(t);
+    gsap.killTweensOf(el);
+    gsap.fromTo(el, { opacity: 0, scale: 0.5, y: 8, rotation: 5 }, { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.5, ease: 'back.out(2.4)' });
+    t = setTimeout(() => gsap.to(el, { opacity: 0, scale: 0.85, y: -4, duration: 0.25, ease: 'power2.in' }), Math.min(4400, 1500 + text.length * 55));
+  };
+}
+const BUB = { home: talker($('#bubble')), x: talker($('#xBubble')), sheet: talker($('#sBubble')), ref: talker($('#refBubble')) };
+let lastTalk = 0;
+function say(where, what) {
+  if (!where || !BUB[where] || !S.talk) return;
+  BUB[where](LINES[what] ? line(what) : what);
+  lastTalk = Date.now();
+}
+function here() {
+  if (sheetOpen()) return $('#sHero').hidden ? null : 'sheet';
+  return { home: 'home', exchange: 'x', ref: 'ref' }[S.view] || null;
+}
+function greetCat() {
+  const h = new Date().getHours();
+  return h < 5 ? 'greet_night' : h < 11 ? 'greet_morning' : h < 17 ? 'greet_day' : h < 23 ? 'greet_evening' : 'greet_night';
+}
+
 /* ───────── mascots ───────── */
 const balPattern = createPattern($('#balPat'), {
   cx: 288, cy: 86, spin: 320,
@@ -1623,41 +2291,40 @@ const balPattern = createPattern($('#balPat'), {
 });
 balPattern.set('g-rub', 'g-usdt', false);
 const mascot = createMascot($('#balMascot'));
+const xMascot = createMascot($('#xMascot'));
 
-const sPattern = createPattern($('#sPat'), { cx: 200, cy: 92 });
+const sPattern = createPattern($('#sPat'), { cx: 296, cy: 92 });
 const sMascot = createMascot($('#sMascot'));
 
-const refPattern = createPattern($('#refPat'), { cx: 200, cy: 98 });
-refPattern.set('g-pct', 'g-rub', false);
+const refPattern = createPattern($('#refPat'), { cx: 262, cy: 84 });
+refPattern.set('g-rub', 'i-gift', false);
 const refBig = createMascot($('#refBig'));
-const refSmallHost = document.createElement('div');
-$('#refSmall').appendChild(refSmallHost);
-const refSmall = createMascot(refSmallHost);
+const refSmall = createMascot($('#refSmall'));
 
-const all = [mascot, sMascot, refBig, refSmall];
+const MAS = { home: mascot, x: xMascot, sheet: sMascot, ref: refBig };
+const all = [mascot, xMascot, sMascot, refBig, refSmall];
 addEventListener('pointermove', (e) => all.forEach((m) => m.look(e.clientX, e.clientY)), { passive: true });
 
-const bubble = $('#bubble');
-let bubT;
-function say(text, ms = 2400) {
-  bubble.textContent = text;
-  clearTimeout(bubT);
-  gsap.killTweensOf(bubble);
-  gsap.fromTo(bubble, { opacity: 0, scale: 0.5, y: 8, rotation: 6 }, { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.5, ease: 'back.out(2.4)' });
-  bubT = setTimeout(() => gsap.to(bubble, { opacity: 0, scale: 0.85, y: -4, duration: 0.25, ease: 'power2.in' }), ms);
-}
-const POKE = ['Чё надо?', 'Руки убрал', 'Я при исполнении', 'Не трогай сейф'];
+// тычки: сначала по сценарию, потом вразнобой, на 15-й — выплёвывает монету
 let pokes = 0, pokeT;
-$('#balMascot').addEventListener('pointerdown', () => {
-  if (S.hidden) { say('Сплю. Всё закрыто', 1600); return; }
-  mascot.poke(); haptic('medium');
-  say(POKE[Math.min(pokes, POKE.length - 1)], 1700);
-  pokes++; clearTimeout(pokeT); pokeT = setTimeout(() => (pokes = 0), 4000);
+[['#balMascot', 'home', mascot], ['#xMascot', 'x', xMascot], ['#sMascot', 'sheet', sMascot], ['#refBig', 'ref', refBig], ['#refSmall', 'ref', refSmall]].forEach(([sel, where, m]) => {
+  $(sel).addEventListener('pointerdown', () => {
+    if (where === 'home' && S.hidden) { say(where, 'poke_hidden'); haptic(); return; }
+    m.poke(); haptic('medium');
+    pokes++;
+    clearTimeout(pokeT); pokeT = setTimeout(() => (pokes = 0), 6000);
+    if (pokes === 15) {
+      pokes = 0;
+      m.spit(); haptic('heavy');
+      setTimeout(() => burst($(sel), 10), 140);
+      say(where, 'spit');
+      return;
+    }
+    say(where, pokes <= LINES.poke_seq.length ? LINES.poke_seq[pokes - 1] : line('poke'));
+  });
 });
 
 /* ───────── home ───────── */
-const S = { hidden: false, view: 'home', backTo: 'home', filter: 'all' };
-
 function renderHome() {
   flow($('#balFlow'), total(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   $('#assets').innerHTML = ORDER.filter((k) => W[k] > 0).map((k) => {
@@ -1676,7 +2343,7 @@ const led = (v) => (v >= 1000 ? String(Math.round(v)) : v.toFixed(2).replace('.'
 function renderBoard(flash = false) {
   const host = $('#boardRows');
   if (!host.children.length) {
-    host.innerHTML = BOARD.map((k) => `<div class="board-row" data-k="${k}"><span class="code">${COINS[k].code}</span><span class="buy"></span><span class="sell"></span></div>`).join('');
+    host.innerHTML = BOARD.map((k) => `<button class="board-row" data-k="${k}" aria-label="Обменять рубли на ${COINS[k].code}"><span class="code">${COINS[k].code}</span><span class="buy"></span><span class="sell"></span></button>`).join('');
   }
   BOARD.forEach((k) => {
     const row = host.querySelector(`[data-k="${k}"]`);
@@ -1691,6 +2358,16 @@ function renderBoard(flash = false) {
     });
   });
 }
+function renderMarq() {
+  const s = LINES.marquee.map((t) => `<span>${t}</span><i></i>`).join('');
+  $('#marq').innerHTML = s + s;
+}
+$('#boardRows').addEventListener('click', (e) => {
+  const r = e.target.closest('[data-k]'); if (!r) return;
+  X.give = 'rub'; X.get = r.dataset.k; X.amt = 1000; X.raw = '1000';
+  haptic();
+  go('exchange');
+});
 
 $('#eyeBtn').addEventListener('click', () => setHidden(!S.hidden, true));
 function setHidden(on, talk) {
@@ -1702,7 +2379,7 @@ function setHidden(on, talk) {
   mascot.sleep(on);
   renderHome();
   haptic();
-  if (talk) say(on ? 'Никому не скажу' : 'Всё на месте', 1800);
+  if (talk) say('home', on ? 'hide' : 'show');
 }
 
 $('#assets').addEventListener('click', (e) => {
@@ -1717,12 +2394,14 @@ $('#assets').addEventListener('click', (e) => {
 $('#bellBtn').addEventListener('click', (e) => {
   e.currentTarget.querySelector('.badge-dot')?.remove();
   toast('Пополнение картой на 5 000 ₽ в обработке');
+  say('home', 'bell');
 });
 
 /* ───────── exchange ───────── */
 const X = { give: 'rub', get: 'usdt', amt: 1000, raw: '1000', lock: 60 };
 const xRate = () => COINS[X.give].rate / COINS[X.get].rate;
 const xOut = () => X.amt * xRate() * (1 - FEE);
+const rubOf = () => X.amt * COINS[X.give].rate;
 const xIn = $('#xGive');
 
 function curBtn(c) { return `${coinHTML(c)}<span>${c.code}</span><svg class="chev"><use href="#i-chev-d"/></svg>`; }
@@ -1736,7 +2415,7 @@ function rateLine() {
 function quickSet() {
   const g = COINS[X.give];
   return g.id === 'rub'
-    ? [[500, '500'], [1000, '1 000'], [5000, '5 000'], [W.rub, 'Все']]
+    ? [[1000, '1 000'], [5000, '5 000'], [10000, '10 000'], [W.rub, 'Все']]
     : [[W[g.id] * 0.25, '25%'], [W[g.id] * 0.5, '50%'], [W[g.id] * 0.75, '75%'], [W[g.id], 'Все']];
 }
 function renderX(full = true) {
@@ -1751,29 +2430,52 @@ function renderX(full = true) {
   flow($('#xGet'), out, { maximumFractionDigits: dpOf(o), minimumFractionDigits: o.id === 'rub' ? 2 : 0 });
   fit($('#xGet').parentElement, amt(out, o).length + 2);
   const over = X.amt > W[g.id] + 1e-9;
+  const low = X.amt > 0 && rubOf() < MIN_RUB;
   const xb = $('#xBal');
   xb.textContent = `Баланс: ${amt(W[g.id], g)} ${unit(g)}`;
   xb.classList.toggle('bad', over);
-  $('#xGetHint').textContent = W[o.id] > 0 ? `у вас ${amt(W[o.id], o)} ${unit(o)}` : '';
+  $('#xGetHint').textContent = W[o.id] > 0 ? `у тебя ${amt(W[o.id], o)} ${unit(o)}` : '';
   $('#xQuick').innerHTML = quickSet().map(([v, l]) => {
     const rv = round(v, dpOf(g));
-    return `<button class="chip ${Math.abs(rv - X.amt) < 1e-9 && rv > 0 ? 'on' : ''}" data-v="${rv}">${l}</button>`;
+    return `<button class="chip ${Math.abs(rv - X.amt) < 1e-9 && rv > 0 ? 'on' : ''}" data-v="${rv}" data-all="${l === 'Все' ? 1 : ''}">${l}</button>`;
   }).join('');
   $('#xKv').innerHTML = `
-    <div><dt>Курс обмена</dt><dd>${rateLine()}</dd></div>
+    <div><dt>Курс</dt><dd>${rateLine()}</dd></div>
     <div><dt>Комиссия</dt><dd>0,5% · ${amt(X.amt * FEE, g)} ${unit(g)}</dd></div>
-    <div class="total"><dt>Вы получите</dt><dd>${amt(out, o)} ${unit(o)}</dd></div>`;
+    <div class="total"><dt>Получишь</dt><dd>${amt(out, o)} ${unit(o)}</dd></div>`;
   const btn = $('#xGo');
-  btn.disabled = X.amt <= 0 || over;
-  $('#xGoText').textContent = X.amt <= 0 ? 'Введите сумму' : over ? 'Не хватает средств' : 'Обменять';
+  btn.disabled = X.amt <= 0 || over || low;
+  $('#xGoText').textContent = X.amt <= 0 ? 'Введи сумму' : over ? 'Не хватает средств' : low ? 'Минимум 100 ₽' : 'Обменять';
 }
+
+// реакция Менялы на сумму: говорит только когда «уровень» суммы сменился
+let tier = null, tierT;
+function tierNow() {
+  const g = COINS[X.give], rub = rubOf();
+  return X.amt > W[g.id] + 1e-9 ? 'over' : X.amt <= 0 ? 'zero' : rub < MIN_RUB ? 'min' : rub < 1000 ? 'tiny' : rub < 10000 ? 'small' : rub < 50000 ? 'mid' : rub < 150000 ? 'big' : 'huge';
+}
+function react(delay = 550) {
+  clearTimeout(tierT);
+  tierT = setTimeout(() => {
+    const t = tierNow();
+    if (t === tier) return;
+    tier = t;
+    if (S.view !== 'exchange' || sheetOpen()) return;
+    if (t === 'over' || t === 'min') xMascot.no();
+    else if (t === 'big' || t === 'huge') xMascot.wow();
+    else if (t === 'mid') { xMascot.glint(); xMascot.hop(8); }
+    say('x', 'amt_' + t);
+  }, delay);
+}
+
 xIn.addEventListener('input', () => {
   const prev = X.amt;
   X.raw = sanitize(xIn.value, dpOf(COINS[X.give]));
   X.amt = parseFloat(X.raw) || 0;
   xIn.value = displayRaw(X.raw);
-  if (X.amt !== prev) { dialTurn(X.amt > prev ? 30 : -30); }
+  if (X.amt !== prev) { dialTurn(X.amt > prev ? 30 : -30); xMascot.turnKnob(X.amt > prev ? 24 : -24, 0.3); }
   renderX(false);
+  react();
 });
 $('#xQuick').addEventListener('click', (e) => {
   const b = e.target.closest('.chip'); if (!b) return;
@@ -1781,10 +2483,13 @@ $('#xQuick').addEventListener('click', (e) => {
   xIn.value = displayRaw(X.raw);
   dialTurn(60); haptic();
   renderX(false);
+  if (b.dataset.all) { clearTimeout(tierT); tier = tierNow(); xMascot.wow(); say('x', 'all_in'); }
+  else react(0);
 });
 $('#xBal').addEventListener('click', () => {
   X.amt = round(W[X.give], dpOf(COINS[X.give])); X.raw = toRaw(X.amt, dpOf(COINS[X.give]));
   renderX();
+  clearTimeout(tierT); tier = tierNow(); say('x', 'all_in');
 });
 
 let dialRot = 0;
@@ -1799,6 +2504,9 @@ $('#dial').addEventListener('click', () => {
   gsap.fromTo('#v-exchange .x-row', { y: (i) => (i ? -14 : 14), opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, stagger: 0.05, ease: 'power3.out' });
   haptic('medium');
   renderX();
+  xMascot.swap();
+  clearTimeout(tierT); tier = tierNow();
+  say('x', 'swap');
 });
 $('#xGiveCur').addEventListener('click', () => pickCoin('give'));
 $('#xGetCur').addEventListener('click', () => pickCoin('get'));
@@ -1810,12 +2518,12 @@ ring.style.strokeDasharray = CIRC;
 function renderLock() {
   $('#lockTime').textContent = `${Math.floor(X.lock / 60)}:${String(X.lock % 60).padStart(2, '0')}`;
   ring.style.strokeDashoffset = CIRC * (1 - X.lock / 60);
+  $('#lock').classList.toggle('hot', X.lock <= 10);
 }
 
 /* ───────── sheet ───────── */
-const sheetWrap = $('#sheet'), sheetPanel = $('#sheetPanel'), sheetDim = $('#sheetDim');
 gsap.set(sheetPanel, { yPercent: 100 });
-let sheetTl = null;
+let sheetTl = null, afterClose = null;
 
 function setSheet(title, sub, body) {
   $('#sTitle').textContent = title;
@@ -1825,9 +2533,9 @@ function setSheet(title, sub, body) {
 }
 function openSheet({ hero = false, glyphs = ['g-rub', 'g-usdt'], title, sub = '', body }) {
   const h = $('#sHero');
-  const already = sheetWrap.classList.contains('open') && !h.hidden && hero;
+  const already = sheetOpen() && !h.hidden && hero;
   h.hidden = !hero;
-  if (hero && !already) { sPattern.set(glyphs[0], glyphs[1], false); sMascot.reset(); }
+  if (hero && !already) { sPattern.set(glyphs[0], glyphs[1], false); sMascot.reset(); gsap.set('#sBubble', { opacity: 0 }); }
   setSheet(title, sub, body);
   if (already) return;
   sheetWrap.classList.add('open');
@@ -1837,16 +2545,25 @@ function openSheet({ hero = false, glyphs = ['g-rub', 'g-usdt'], title, sub = ''
   gsap.fromTo(sheetPanel, { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: 'expo.out' });
   if (hero) setTimeout(() => sMascot.wow(), 380);
   haptic();
+  syncBack();
 }
 function closeSheet() {
   sheetTl && sheetTl.kill();
   gsap.to(sheetDim, { opacity: 0, duration: 0.25 });
-  gsap.to(sheetPanel, { yPercent: 100, duration: 0.32, ease: 'power3.in', onComplete: () => { sheetWrap.classList.remove('open'); sMascot.reset(); } });
+  gsap.to(sheetPanel, {
+    yPercent: 100, duration: 0.32, ease: 'power3.in',
+    onComplete: () => {
+      sheetWrap.classList.remove('open');
+      sMascot.reset();
+      syncBack();
+      const f = afterClose; afterClose = null; f && f();
+    },
+  });
 }
 sheetDim.addEventListener('click', closeSheet);
 let dragY = null, dragT = 0;
 sheetPanel.addEventListener('pointerdown', (e) => {
-  if (e.target.closest('button, input, a') || sheetPanel.scrollTop > 0) return;
+  if (e.target.closest('button, input, a, .s-mascot') || sheetPanel.scrollTop > 0) return;
   dragY = e.clientY; dragT = Date.now();
   sheetPanel.setPointerCapture(e.pointerId);
 });
@@ -1862,8 +2579,8 @@ sheetPanel.addEventListener('pointerup', (e) => {
 function pickCoin(side) {
   const curId = X[side];
   openSheet({
-    title: side === 'give' ? 'Что отдаёте' : 'Что получаете',
-    sub: 'Курс фиксируем на 60 секунд',
+    title: side === 'give' ? 'Что отдаёшь' : 'Что получаешь',
+    sub: 'Курс держим минуту',
     body: `<div class="pick">${ORDER.map((k) => {
       const c = COINS[k];
       return `<button class="row ${k === curId ? 'sel' : ''}" data-pick="${k}">${coinHTML(c)}<span class="row-t"><b>${c.name}</b><small>${k === 'rub' ? 'RUB' : `${c.code} · ${rateTxt(c.rate)} ₽`}</small></span><span class="row-r"><b>${amt(W[k], c)}</b><small>${unit(c)}</small></span><span class="radio">${ico('i-check')}</span></button>`;
@@ -1873,48 +2590,147 @@ function pickCoin(side) {
     const r = e.target.closest('[data-pick]'); if (!r) return;
     const k = r.dataset.pick, other = side === 'give' ? 'get' : 'give';
     $$('#sBody .row').forEach((x) => x.classList.toggle('sel', x === r));
+    const changed = X[side] !== k;
     if (X[other] === k) X[other] = X[side];
     X[side] = k;
     if (side === 'give') { X.amt = Math.min(X.amt, W[k]) || 0; X.amt = round(X.amt, dpOf(COINS[k])); X.raw = toRaw(X.amt, dpOf(COINS[k])); }
     renderX(); haptic();
+    tier = tierNow();
+    if (changed) afterClose = () => { xMascot.glint(); say('x', 'coin_' + k); };
     setTimeout(closeSheet, 180);
   };
 }
 
-/* exchange: confirm → process → done */
+/* «зажми и держи» — крутим диск сейфа */
+const holdHTML = (t) => `<button class="hold" id="hold"><i class="hold-fill"></i><span class="hold-dial" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="1.6 2.9"/><circle cx="12" cy="12" r="5" fill="currentColor"/><rect x="11" y="3.8" width="2" height="4.4" rx="1" fill="currentColor"/></svg></span><span class="hold-t">${t}</span></button>`;
+function holdButton(btn, label, onDone) {
+  const fill = btn.querySelector('.hold-fill'), dial = btn.querySelector('.hold-dial'), t = btn.querySelector('.hold-t');
+  let tw = null, done = false, step = 0;
+  gsap.set(fill, { scaleX: 0, transformOrigin: '0% 50%' });
+  const start = (e) => {
+    if (done || tw) return;
+    if (e && e.button > 0) return;
+    t.textContent = 'Держи…';
+    btn.classList.add('on');
+    sMascot.mood('focus');
+    say('sheet', 'hold_go');
+    const p0 = gsap.getProperty(fill, 'scaleX');
+    tw = gsap.to(fill, {
+      scaleX: 1, duration: 1.15 * (1 - p0), ease: 'none',
+      onUpdate() {
+        const p = gsap.getProperty(fill, 'scaleX');
+        gsap.set(dial, { rotation: p * 540 });
+        const s = Math.floor(p * 9);
+        if (s > step) { step = s; tick(); sMascot.turnKnob(40, 0.12, 'none'); }
+      },
+      onComplete() {
+        done = true; tw = null;
+        t.textContent = 'Открыто!';
+        haptic('heavy');
+        onDone();
+      },
+    });
+  };
+  const stop = () => {
+    if (done || !tw) return;
+    const p = gsap.getProperty(fill, 'scaleX');
+    tw.kill(); tw = null; step = 0;
+    btn.classList.remove('on');
+    gsap.to(fill, { scaleX: 0, duration: 0.3, ease: 'power2.out' });
+    gsap.to(dial, { rotation: 0, duration: 0.4, ease: 'back.out(2)' });
+    t.textContent = label;
+    sMascot.no();
+    haptic('rigid');
+    say('sheet', p < 0.12 ? 'hold_tap' : 'hold_fail');
+  };
+  btn.addEventListener('pointerdown', start);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => btn.addEventListener(ev, stop));
+  btn.addEventListener('keydown', (e) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); start(); } });
+  btn.addEventListener('keyup', (e) => { if (e.key === ' ' || e.key === 'Enter') stop(); });
+  btn.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
+/* чек: печатается из щели, сверху — штамп */
+function barcode(seed) {
+  const r = seeded(seed);
+  let x = 0, s = '';
+  while (x < 194) { const w = 1 + Math.floor(r() * 3); s += `<rect x="${x}" y="0" width="${w}" height="30"/>`; x += w + 1 + Math.floor(r() * 3); }
+  return `<svg class="p-bar" viewBox="0 0 196 30" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
+}
+function receiptHTML({ no, rows, total, stamp }) {
+  const d = new Date();
+  const dd = d.toLocaleDateString('ru-RU');
+  return `<div class="printer"><div class="slot"></div><div class="paper-wrap" id="paperWrap"><div class="paper">
+    <div class="p-head"><b>МЕНЯЛА</b><span>чек № ${no}</span><span>${dd} · ${nowHM()}</span></div>
+    <div class="p-cut"></div>
+    ${rows.map(([k, v]) => `<div class="p-row"><span>${k}</span><span>${v}</span></div>`).join('')}
+    <div class="p-cut"></div>
+    <div class="p-row p-total"><span>${total[0]}</span><span>${total[1]}</span></div>
+    <div class="p-cut"></div>
+    ${barcode(no)}
+    <div class="p-foot">${line('receipt')}</div>
+    <div class="stamp" id="stamp"><b>${stamp}</b><small>${dd}</small></div>
+  </div></div></div>`;
+}
+function printReceipt() {
+  const wrap = $('#paperWrap'), stamp = $('#stamp');
+  if (!wrap) return;
+  gsap.set(stamp, { opacity: 0 });
+  sheetTl = gsap.timeline({ delay: 0.2 })
+    .fromTo(wrap, { height: 0 }, { height: 'auto', duration: 1.4, ease: 'steps(14)' });
+  for (let i = 0; i < 7; i++) sheetTl.call(tick, null, i * 0.2);
+  sheetTl
+    .fromTo(stamp, { opacity: 0, scale: 2.4, rotation: -28 }, { opacity: 0.92, scale: 1, rotation: -11, duration: 0.26, ease: 'power4.in' }, '+=.25')
+    .call(() => haptic('heavy'))
+    .fromTo(wrap, { y: 0 }, { y: 3, duration: 0.06, yoyo: true, repeat: 1 });
+}
+
+/* exchange: confirm (hold) → process → чек */
 $('#xGo').addEventListener('click', () => {
   const g = COINS[X.give], o = COINS[X.get];
   const ord = { g, o, give: X.amt, get: xOut(), rate: rateLine(), id: 48000 + Math.floor(Math.random() * 1900) };
   const glyph = (c) => (c.id === 'rub' ? 'g-rub' : c.glyph);
+  const label = 'Зажми, чтобы обменять';
   openSheet({
     hero: true, glyphs: [glyph(g), glyph(o)],
-    title: 'Подтвердите обмен', sub: `Курс держим ещё ${$('#lockTime').textContent}`,
+    title: 'Проверь и зажимай', sub: `Курс держим ещё ${$('#lockTime').textContent}`,
     body: `<dl class="kv">
-      <div><dt>Отдаёте</dt><dd>${amt(ord.give, g)} ${unit(g)}</dd></div>
-      <div><dt>Получаете</dt><dd>${amt(ord.get, o)} ${unit(o)}</dd></div>
+      <div><dt>Отдаёшь</dt><dd>${amt(ord.give, g)} ${unit(g)}</dd></div>
+      <div><dt>Получаешь</dt><dd>${amt(ord.get, o)} ${unit(o)}</dd></div>
       <div><dt>Курс</dt><dd>${ord.rate}</dd></div>
       <div><dt>Комиссия</dt><dd>0,5%</dd></div></dl>
-      <div class="confirm-row"><button class="btn btn-ghost" data-act="cancel">Отмена</button><button class="btn btn-primary" data-act="ok">Подтвердить</button></div>`,
+      ${holdHTML(label)}
+      <button class="link-btn" data-act="cancel">Передумал</button>`,
   });
+  setTimeout(() => say('sheet', 'confirm'), 700);
+  holdButton($('#hold'), label, () => runSteps({
+    title: 'Меняем…', sub: 'Пара секунд',
+    steps: ['Открываем сейф', 'Фиксируем курс', `Отсчитываем ${amt(ord.get, o)} ${unit(o)}`],
+    done: () => {
+      W[g.id] -= ord.give; W[o.id] += ord.get;
+      swapped += ord.give * g.rate;
+      OPS.unshift({ t: 'x', title: `Обмен ${g.code} → ${o.code}`, day: 'Сегодня', time: nowHM(), amt: `+${amt(ord.get, o)} ${unit(o)}`, pos: true, st: 'ok', sub: `−${amt(ord.give, g)} ${unit(g)}` });
+      X.amt = 0; X.raw = ''; tier = 'zero';
+      renderHome(); renderX(); renderFun(false);
+      afterClose = () => { xMascot.hop(14); say('x', 'success'); };
+      return {
+        title: 'Готово', sub: `Обмен № ${ord.id} · 2,1 секунды`,
+        body: `<div class="big-ok">+${amt(ord.get, o)} <em>${unit(o)}</em></div>
+          ${receiptHTML({
+            no: ord.id,
+            rows: [['ОТДАЛ', `${amt(ord.give, g)} ${g.code}`], ['ПОЛУЧИЛ', `${amt(ord.get, o)} ${o.code}`], ['КУРС', ord.rate], ['КОМИССИЯ', `${amt(ord.give * FEE, g)} ${g.code}`]],
+            total: ['ИТОГО', `+${amt(ord.get, o)} ${o.code}`],
+            stamp: 'Обменяно',
+          })}
+          <button class="btn btn-primary btn-xl" data-act="close">Забрать чек</button>`,
+        print: true, say: 'success',
+      };
+    },
+  }));
   $('#sBody').onclick = (e) => {
-    const a = e.target.closest('[data-act]'); if (!a) return;
-    if (a.dataset.act === 'cancel') return closeSheet();
-    runSteps({
-      title: 'Меняем…', sub: 'Пара секунд',
-      steps: [`Списываем ${amt(ord.give, g)} ${unit(g)}`, 'Фиксируем курс', `Зачисляем ${amt(ord.get, o)} ${unit(o)}`],
-      done: () => {
-        W[g.id] -= ord.give; W[o.id] += ord.get;
-        OPS.unshift({ t: 'x', title: `Обмен ${g.code} → ${o.code}`, day: 'Сегодня', time: new Date().toTimeString().slice(0, 5), amt: `+${amt(ord.get, o)} ${unit(o)}`, pos: true, st: 'ok', sub: `−${amt(ord.give, g)} ${unit(g)}` });
-        X.amt = 0; X.raw = '';
-        renderHome(); renderX();
-        return {
-          title: 'Готово', sub: `Обмен #${ord.id}`,
-          body: `<p class="s-caption">Зачислено на баланс</p><div class="big-ok">+${amt(ord.get, o)} <em>${unit(o)}</em></div>
-            <dl class="kv receipt"><div><dt>Отдали</dt><dd>${amt(ord.give, g)} ${unit(g)}</dd></div><div><dt>Курс</dt><dd>${ord.rate}</dd></div><div><dt>Комиссия</dt><dd>${amt(ord.give * FEE, g)} ${unit(g)}</dd></div><div class="cut"><dt>Время</dt><dd>2,1 секунды</dd></div></dl>
-            <button class="btn btn-primary btn-xl" data-act="close">Отлично</button>`,
-        };
-      },
-    });
+    if (!e.target.closest('[data-act="cancel"]')) return;
+    afterClose = () => { xMascot.no(); say('x', 'cancel'); };
+    closeSheet();
   };
 });
 
@@ -1933,6 +2749,8 @@ function runSteps({ title, sub, steps, done }) {
     sMascot.success();
     burst($('#sMascot'));
     haptic('heavy');
+    if (r.print) printReceipt();
+    if (r.say) setTimeout(() => say('sheet', r.say), 450);
     $('#sBody').onclick = (e) => { if (e.target.closest('[data-act="close"]')) closeSheet(); };
   }, null, 0.85 + steps.length * 0.6);
 }
@@ -1940,7 +2758,7 @@ function runSteps({ title, sub, steps, done }) {
 /* deposit / withdraw */
 $$('[data-sheet]').forEach((b) => b.addEventListener('click', () => moneySheet(b.dataset.sheet)));
 
-function moneySheet(mode, coinId = 'rub') {
+function moneySheet(mode, coinId = 'rub', quiet = false) {
   const dep = mode === 'deposit';
   const c = COINS[coinId];
   const methods = [
@@ -1955,7 +2773,7 @@ function moneySheet(mode, coinId = 'rub') {
         <div class="addr-head"><span>Адрес · ${c.netName} ${c.net}</span><span class="pill">${c.code}</span></div>
         <div class="addr-row"><span class="addr"><b>${c.addr.slice(0, 5)}</b>${c.addr.slice(5, -5)}<b>${c.addr.slice(-5)}</b></span><button class="copy" data-copy="${c.addr}" aria-label="Скопировать адрес">${ico('i-copy')}</button></div>
       </div>
-      <div class="note">${ico('i-warn')}<span>Только сеть ${c.net}. Монеты из другой сети потеряются.</span></div></div>
+      <div class="note">${ico('i-warn')}<span>Только сеть ${c.net}. Монеты из другой сети потеряются — даже Меняла не найдёт.</span></div></div>
       <button class="btn btn-primary btn-xl" data-act="sent">Я отправил</button>`;
   } else {
     const max = W[c.id];
@@ -1976,6 +2794,7 @@ function moneySheet(mode, coinId = 'rub') {
   }
 
   openSheet({ hero: true, glyphs: [c.id === 'rub' ? 'g-rub' : c.glyph, 'g-safe'], title: dep ? 'Пополнить' : 'Вывести', sub: dep ? 'Положим в сейф моментально' : 'Достанем из сейфа и отправим', body });
+  if (!quiet) setTimeout(() => say('sheet', dep ? 'dep_open' : 'wd_open'), 700);
 
   const inp = $('#mAmt');
   let val = inp ? parseFloat(sanitize(inp.value, dpOf(c))) || 0 : 0;
@@ -1984,7 +2803,7 @@ function moneySheet(mode, coinId = 'rub') {
     const b = $('#mGo'); if (!b) return;
     const over = !dep && val > W[c.id] + 1e-9;
     b.disabled = val <= 0 || over;
-    b.innerHTML = `${ico(dep ? 'i-in' : 'i-out')}<span>${val <= 0 ? 'Введите сумму' : over ? 'Не хватает средств' : `${dep ? 'Пополнить на' : 'Вывести'} ${amt(val, c)} ${unit(c)}`}</span>`;
+    b.innerHTML = `${ico(dep ? 'i-in' : 'i-out')}<span>${val <= 0 ? 'Введи сумму' : over ? 'Не хватает средств' : `${dep ? 'Пополнить на' : 'Вывести'} ${amt(val, c)} ${unit(c)}`}</span>`;
     $$('#sBody .s-chips .chip').forEach((ch) => ch.classList.toggle('on', Math.abs(+ch.dataset.v - val) < 1e-9));
   };
   if (inp) inp.addEventListener('input', () => { const raw = sanitize(inp.value, dpOf(c)); inp.value = displayRaw(raw); val = parseFloat(raw) || 0; sync(); });
@@ -2004,25 +2823,32 @@ function moneySheet(mode, coinId = 'rub') {
       haptic(); return;
     }
     const a = e.target.closest('[data-act]'); if (!a) return;
-    if (a.dataset.act === 'sent') { toast('Ждём сеть — зачислим автоматически'); closeSheet(); return; }
+    if (a.dataset.act === 'sent') { toast('Ждём сеть — зачислим сами'); closeSheet(); return; }
     if (a.dataset.act === 'close') { closeSheet(); return; }
     if (a.dataset.act === 'go') {
       const v = val;
       const via = c.id === 'rub' ? method.name : `${c.netName} ${c.net}`;
       runSteps({
         title: dep ? 'Пополняем…' : 'Выводим…', sub: via,
-        steps: dep ? ['Принимаем платёж', 'Проверяем отправителя', 'Кладём в сейф'] : ['Достаём из сейфа', 'Проверяем реквизиты', `Отправляем на ${via}`],
+        steps: dep ? ['Принимаем платёж', 'Пересчитываем', 'Кладём в сейф'] : ['Достаём из сейфа', 'Проверяем реквизиты', `Отправляем на ${via}`],
         done: () => {
           W[c.id] += dep ? v : -v;
-          OPS.unshift({ t: dep ? 'in' : 'out', title: dep ? `Пополнение · ${via}` : `Вывод · ${via}`, day: 'Сегодня', time: new Date().toTimeString().slice(0, 5), amt: `${dep ? '+' : '−'}${amt(v, c)} ${unit(c)}`, pos: dep, st: dep ? 'ok' : 'wait' });
+          const no = 52000 + Math.floor(Math.random() * 1900);
+          OPS.unshift({ t: dep ? 'in' : 'out', title: dep ? `Пополнение · ${via}` : `Вывод · ${via}`, day: 'Сегодня', time: nowHM(), amt: `${dep ? '+' : '−'}${amt(v, c)} ${unit(c)}`, pos: dep, st: dep ? 'ok' : 'wait' });
           renderHome(); renderX();
-          setTimeout(() => { mascot[dep ? 'dropCoin' : 'nudge'](); say(dep ? 'Положил в сейф' : 'Отправил. Жди', 2000); }, 900);
+          afterClose = () => { mascot[dep ? 'dropCoin' : 'nudge'](); };
           return {
             title: dep ? 'Зачислено' : 'Отправлено',
             sub: dep ? `через ${via}` : 'обычно доходит за пару минут',
             body: `<div class="big-ok" style="${dep ? '' : 'color:var(--tx)'}">${dep ? '+' : '−'}${amt(v, c)} <em>${unit(c)}</em></div>
-              <dl class="kv receipt"><div><dt>${dep ? 'Способ' : 'Куда'}</dt><dd>${via}</dd></div><div><dt>Комиссия</dt><dd>0 ₽</dd></div><div class="cut"><dt>Баланс ${c.code}</dt><dd>${amt(W[c.id], c)} ${unit(c)}</dd></div></dl>
+              ${receiptHTML({
+                no,
+                rows: [[dep ? 'СПОСОБ' : 'КУДА', via], ['КОМИССИЯ', `0 ${c.code}`], [`БАЛАНС ${c.code}`, `${amt(W[c.id], c)}`]],
+                total: [dep ? 'ПОЛОЖИЛИ' : 'ОТПРАВИЛИ', `${amt(v, c)} ${c.code}`],
+                stamp: dep ? 'Зачислено' : 'Отправлено',
+              })}
               <button class="btn btn-primary btn-xl" data-act="close">Готово</button>`,
+            print: true, say: dep ? 'dep_done' : 'wd_done',
           };
         },
       });
@@ -2031,26 +2857,46 @@ function moneySheet(mode, coinId = 'rub') {
 }
 function moneySheetSwap(mode, coin) {
   // шторка уже открыта — openSheet просто перерисует содержимое
-  moneySheet(mode, coin);
+  moneySheet(mode, coin, true);
   const c = COINS[coin];
   sPattern.set(c.id === 'rub' ? 'g-rub' : c.glyph, 'g-safe');
   sMascot.nudge(1);
 }
+
+/* лимиты */
+$('#limitsBtn').addEventListener('click', () => {
+  openSheet({
+    hero: true, glyphs: ['g-pct', 'g-safe'],
+    title: 'Лимиты и комиссии', sub: 'Всё, что берём, — тут. Больше нигде',
+    body: `<dl class="kv">
+      <div><dt>Обмен</dt><dd>0,5%</dd></div>
+      <div><dt>Пополнение СБП и картой</dt><dd>0%</dd></div>
+      <div><dt>Вывод по СБП</dt><dd>0%</dd></div>
+      <div><dt>Вывод на карту</dt><dd>1%</dd></div>
+      <div><dt>Вывод крипты</dt><dd>комиссия сети</dd></div>
+      <div><dt>Минимальный обмен</dt><dd>100 ₽</dd></div>
+      <div><dt>Курс держим</dt><dd>60 секунд</dd></div></dl>
+      <button class="btn btn-ghost btn-xl" data-act="close">Понятно</button>`,
+  });
+  setTimeout(() => say('sheet', 'limits'), 700);
+  $('#sBody').onclick = (e) => { if (e.target.closest('[data-act="close"]')) closeSheet(); };
+});
 
 /* ───────── history ───────── */
 function renderHistory(animate) {
   const list = OPS.filter((o) => S.filter === 'all' || o.t === S.filter);
   const groups = [];
   list.forEach((o) => { let g = groups.find((x) => x.day === o.day); if (!g) groups.push((g = { day: o.day, items: [] })); g.items.push(o); });
+  $('#hSum').textContent = `${OPS.length} ${plural(OPS.length, ['операция', 'операции', 'операций'])} · Меняла всё записывает`;
   $('#hList').innerHTML = groups.length ? groups.map((g) => `<div class="hdate">${g.day}</div><div class="list">${g.items.map((o) => `
     <div class="row"><span class="op-ico ${o.t}">${ico(o.t === 'in' ? 'i-in' : o.t === 'out' ? 'i-out' : 'i-swap-h')}</span>
       <span class="row-t"><b>${o.title}</b><small>${o.time}${o.sub ? ' · ' + o.sub : ''}</small></span>
       <span class="row-r"><b class="${o.pos ? 'pos' : ''}">${o.amt}</b><span class="st ${o.st}">${ST[o.st]}</span></span></div>`).join('')}</div>`).join('')
-    : '<p class="empty">Тут пока пусто</p>';
+    : '<p class="empty">Пусто. Даже Меняле нечего вспомнить</p>';
   if (animate) gsap.from('#hList > *', { y: 14, opacity: 0, duration: 0.4, stagger: 0.03, ease: 'power3.out' });
 }
-function moveSeg() {
-  const on = $('#seg button.on'), ind = $('#segInd');
+function moveInd(seg) {
+  const on = seg.querySelector('button.on'), ind = seg.querySelector('.seg-ind');
   if (!on || !on.offsetWidth) return;
   ind.style.width = on.offsetWidth + 'px';
   ind.style.transform = `translateX(${on.offsetLeft}px)`;
@@ -2059,30 +2905,87 @@ $('#seg').addEventListener('click', (e) => {
   const b = e.target.closest('button[data-f]'); if (!b || b.classList.contains('on')) return;
   $$('#seg button').forEach((x) => x.classList.toggle('on', x === b));
   S.filter = b.dataset.f;
-  moveSeg(); renderHistory(true); haptic();
+  moveInd($('#seg')); renderHistory(true); haptic();
 });
-addEventListener('resize', moveSeg);
+addEventListener('resize', () => $$('.seg').forEach(moveInd));
 
-/* ───────── profile / ref / prefs ───────── */
+/* ───────── profile ───────── */
 dialTicks($('#meRing'), 48, 44, 39.5, 43, 37.5, 6);
 dialTicks($('#dialRing'), 24, 28, 23, 26, 21.5, 6);
-(() => {
-  let s = '';
-  for (let k = 0; k < 8; k++) {
-    const t = (k / 8) * Math.PI * 2, x = 32 + Math.cos(t) * 25, y = 32 + Math.sin(t) * 25;
-    s += `<use href="#g-pct" x="${(x - 5).toFixed(1)}" y="${(y - 5).toFixed(1)}" width="10" height="10"/>`;
-  }
-  $('#promoPat').innerHTML = s;
-})();
-$('#earnBars').innerHTML = [12, 18, 9, 26, 22, 31, 28, 44].map((v) => `<i style="height:${v * 2}%"></i>`).join('');
 
+// «наменял на 48 230 ₽ — это 160 шаурм»
+const UNITS = [
+  { p: 300, f: ['шаурма', 'шаурмы', 'шаурм'] },
+  { p: 250, f: ['чашка кофе', 'чашки кофе', 'чашек кофе'] },
+  { p: 450, f: ['поездка на такси', 'поездки на такси', 'поездок на такси'] },
+  { p: 110, f: ['пачка гречки', 'пачки гречки', 'пачек гречки'] },
+  { p: 700, f: ['пицца', 'пиццы', 'пицц'] },
+  { p: 500, f: ['билет в кино', 'билета в кино', 'билетов в кино'] },
+  { p: 120, f: ['банка энергетика', 'банки энергетика', 'банок энергетика'] },
+];
+let unitI = 0;
+function renderFun(anim) {
+  flow($('#funTotal'), Math.round(swapped), { maximumFractionDigits: 0 });
+  const u = UNITS[unitI], n = Math.floor(swapped / u.p);
+  const apply = () => { $('#funN').textContent = int(n); $('#funU').textContent = plural(n, u.f); };
+  if (!anim) return apply();
+  gsap.timeline()
+    .to('.fun-r', { rotationX: 90, transformPerspective: 500, duration: 0.15, ease: 'power2.in' })
+    .call(apply)
+    .to('.fun-r', { rotationX: 0, duration: 0.45, ease: 'back.out(2.6)' });
+}
+$('#fun').addEventListener('click', () => { unitI = (unitI + 1) % UNITS.length; renderFun(true); haptic(); });
+
+/* ───────── referral ───────── */
+function friendHTML(f) {
+  const s1 = Math.min(1, f.sum / REF.first), s2 = Math.max(0, Math.min(1, (f.sum - REF.first) / (REF.second - REF.first)));
+  const m1 = f.sum >= REF.first, m2 = f.sum >= REF.second;
+  const got = (m1 ? REF.bonus : 0) + (m2 ? REF.bonus : 0);
+  const hint = f.sum === 0 ? 'ещё не менял — пни его'
+    : !m1 ? `до первой сотки ${int(REF.first - f.sum)} ₽`
+    : !m2 ? `до второй сотки ${int(REF.second - f.sum)} ₽`
+    : 'обе сотки твои';
+  return `<div class="row fr">
+    <span class="fr-ava" style="--c:${f.c}">${f.n[1].toUpperCase()}</span>
+    <span class="fr-t">
+      <span class="fr-top"><b>${f.n}</b><span class="fr-got ${got ? 'on' : ''}">${got ? '+' : ''}${got} ₽</span></span>
+      <span class="fr-track"><i class="tr a"><i style="width:${(s1 * 100).toFixed(1)}%"></i></i><span class="ms ${m1 ? 'on' : ''}">100</span><i class="tr b"><i style="width:${(s2 * 100).toFixed(1)}%"></i></i><span class="ms ${m2 ? 'on' : ''}">100</span></span>
+      <small>${f.sum ? `наменял ${int(f.sum)} ₽ · ` : ''}${hint}</small>
+    </span>
+  </div>`;
+}
+function renderRef() {
+  flow($('#refBal'), REF.bal, { maximumFractionDigits: 0 });
+  $('#pRefBal').textContent = `${int(REF.bal)} ₽`;
+  $('#refMeta').textContent = `всего заработано ${int(REF.earned)} ₽`;
+  const c = $('#refClaim');
+  c.disabled = REF.bal <= 0;
+  c.innerHTML = REF.bal > 0 ? `${ico('i-in')}Забрать` : 'Пусто';
+  $('#frMeta').textContent = `${REF.total} ${plural(REF.total, ['друг', 'друга', 'друзей'])} · ${REF.active} уже меняли`;
+  $('#friends').innerHTML = FRIENDS.map(friendHTML).join('');
+}
+$('#refClaim').addEventListener('click', (e) => {
+  if (REF.bal <= 0) { say('ref', 'claim_empty'); return; }
+  const v = REF.bal;
+  W.rub += v; REF.bal = 0;
+  OPS.unshift({ t: 'in', title: 'Бонус за друзей', day: 'Сегодня', time: nowHM(), amt: `+${money(v)} ₽`, pos: true, st: 'ok', sub: 'с реф-баланса' });
+  burst(e.currentTarget, 18);
+  renderRef(); renderHome(); renderHistory(false);
+  refBig.success(); setTimeout(() => refSmall.hop(18), 160);
+  setTimeout(() => { refBig.mood('tough'); refSmall.mood('tough'); }, 2600);
+  haptic('heavy');
+  toast(`${int(v)} ₽ упали в кошелёк`);
+  say('ref', 'claim');
+});
 $('#shareRef').addEventListener('click', () => {
   const link = 'https://t.me/menyala_bot?start=r843726';
-  if (tg && tg.openTelegramLink) { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link)); return; }
+  say('ref', 'share');
+  if (tg && tg.openTelegramLink) { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent('Меняю крипту тут. Залетай — по ссылке бонус')); return; }
   copyText(link, null);
   toast('Ссылка скопирована — кидай другу');
 });
 
+/* ───────── prefs ───────── */
 $$('.toggle').forEach((t) => t.addEventListener('click', () => {
   const on = !t.classList.contains('on');
   t.classList.toggle('on', on);
@@ -2091,6 +2994,24 @@ $$('.toggle').forEach((t) => t.addEventListener('click', () => {
   if (t.id === 'tgHide') { try { localStorage.setItem('menyala-hide', on ? '1' : '0'); } catch (e) {} toast(on ? 'Баланс будет скрыт при входе' : 'Баланс снова виден при входе'); }
   if (t.id === 'tgNotif') toast(on ? 'Уведомления включены' : 'Уведомления выключены');
 }));
+
+const TALK = [
+  { hint: 'молчит, но всё видит', toast: 'Меняла молчит. Обиделся, но молчит' },
+  { hint: 'говорит по делу', toast: 'Меняла говорит по делу' },
+  { hint: 'не затыкается вообще', toast: 'Меняла не заткнётся. Ты сам выбрал' },
+];
+function setTalk(v, quiet) {
+  S.talk = v;
+  $$('#talkSeg button').forEach((b) => b.classList.toggle('on', +b.dataset.t === v));
+  $('#talkHint').textContent = TALK[v].hint;
+  moveInd($('#talkSeg'));
+  try { localStorage.setItem('menyala-talk', String(v)); } catch (e) {}
+  if (!quiet) { toast(TALK[v].toast); haptic(); }
+}
+$('#talkSeg').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-t]');
+  if (b && !b.classList.contains('on')) setTalk(+b.dataset.t);
+});
 
 $('#logout').addEventListener('click', () => {
   openSheet({
@@ -2118,7 +3039,7 @@ function copyText(text, btn) {
 }
 document.addEventListener('click', (e) => {
   const c = e.target.closest('[data-copy]');
-  if (c) { copyText(c.dataset.copy, c); toast('Скопировано'); haptic(); return; }
+  if (c) { copyText(c.dataset.copy, c); toast('Скопировано'); haptic(); if (Math.random() < 0.6) say(here(), 'copy'); return; }
   const t = e.target.closest('[data-toast]');
   if (t) { toast(t.dataset.toast); haptic(); return; }
   const g = e.target.closest('[data-go]');
@@ -2148,26 +3069,50 @@ function go(name, back = false, instant = false) {
     $$('.tab').forEach((t) => t.classList.toggle('on', t.dataset.tab === name));
     if (!instant) gsap.fromTo(`.tab[data-tab="${name}"] svg`, { y: 4, scale: 0.8 }, { y: -1, scale: 1, duration: 0.5, ease: 'back.out(3)' });
   }
-  if (name === 'exchange') renderX();
-  if (name === 'history') { renderHistory(false); requestAnimationFrame(moveSeg); setTimeout(moveSeg, 60); }
+  if (name === 'exchange') {
+    renderX();
+    tier = tierNow();
+    gsap.fromTo('#xMascot', { y: 74 }, { y: 0, duration: 0.7, ease: 'back.out(1.5)', delay: instant ? 0 : 0.18 });
+    setTimeout(() => S.view === 'exchange' && say('x', 'x_hello'), 750);
+  }
+  if (name === 'history') { renderHistory(false); requestAnimationFrame(() => moveInd($('#seg'))); setTimeout(() => moveInd($('#seg')), 60); }
+  if (name === 'profile') renderFun(false);
+  if (name === 'prefs') { requestAnimationFrame(() => moveInd($('#talkSeg'))); setTimeout(() => moveInd($('#talkSeg')), 60); }
   if (name === 'ref') {
-    gsap.from('#earnBars i', { scaleY: 0, duration: 0.6, stagger: 0.04, ease: 'back.out(1.6)', delay: 0.2 });
+    renderRef();
+    gsap.from('#friends .tr > i', { scaleX: 0, transformOrigin: '0% 50%', duration: 0.7, stagger: 0.05, ease: 'power3.out', delay: 0.25 });
+    gsap.fromTo('.ref-cash', { scale: 0, rotation: -60 }, { scale: 1, rotation: -14, duration: 0.6, ease: 'back.out(2.4)', delay: 0.5 });
     refBig.enter(); setTimeout(() => refSmall.enter(), 180);
+    setTimeout(() => S.view === 'ref' && say('ref', 'ref_hello'), 1000);
   }
   if (!instant) {
     if (sub || back) gsap.fromTo(to, { x: back ? -28 : 28, opacity: 0 }, { x: 0, opacity: 1, duration: 0.42, ease: 'power3.out', clearProps: 'transform' });
     else gsap.fromTo(to.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.04, ease: 'power3.out', clearProps: 'transform,opacity' });
   }
   try { history.replaceState(null, '', '#' + name); } catch (e) {}
+  syncBack();
   haptic();
 }
 
+/* Telegram: системная кнопка «назад» */
+function syncBack() {
+  if (!tg || !tg.BackButton) return;
+  try { (sheetOpen() || S.view !== 'home') ? tg.BackButton.show() : tg.BackButton.hide(); } catch (e) {}
+}
+try {
+  tg && tg.BackButton && tg.BackButton.onClick(() => {
+    if (sheetOpen()) closeSheet();
+    else if ($(`[data-view="${S.view}"]`).classList.contains('sub')) go(S.backTo || 'home', true);
+    else go('home', true);
+  });
+} catch (e) {}
+
 /* coins + bills burst */
-function burst(host) {
+function burst(host, count = 26) {
   const r = host.getBoundingClientRect();
   const x0 = r.left + r.width / 2, y0 = r.top + r.height * 0.45;
   const fx = $('#fx');
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < count; i++) {
     const d = document.createElement('i');
     d.className = i % 4 === 0 ? 'b' : 'c';
     fx.appendChild(d);
@@ -2186,30 +3131,61 @@ function burst(host) {
   }
 }
 
-/* ───────── live ticks ───────── */
-let tick = 0;
+/* ───────── жизнь: курс, таймер, болтовня в простое ───────── */
+let lastAct = Date.now(), nextFidget = Date.now() + 5000, afkSaid = false, sec = 0;
+['pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, () => { lastAct = Date.now(); afkSaid = false; }, { capture: true, passive: true }));
+
+function idleTick() {
+  const w = here();
+  if (!w || document.hidden) return;
+  const now = Date.now();
+  if (now > nextFidget) {
+    MAS[w].fidget();
+    if (w === 'ref' && Math.random() < 0.5) setTimeout(() => refSmall.fidget(), 400);
+    nextFidget = now + 4500 + Math.random() * 5000;
+  }
+  if (!S.talk || w === 'sheet') return;
+  const gap = S.talk === 2 ? 9000 : 18000;
+  if (now - lastAct < gap || now - lastTalk < gap) return;
+  if (now - lastAct > 120000) { if (!afkSaid) { afkSaid = true; say(w, 'afk'); } return; }
+  say(w, w === 'home' ? (S.hidden ? 'idle_hidden' : 'idle') : w === 'x' ? 'idle_x' : 'idle_ref');
+}
+
 setInterval(() => {
-  tick++;
+  sec++;
   X.lock = X.lock <= 1 ? 60 : X.lock - 1;
   renderLock();
-  if (tick % 15 === 0) {
+  if (S.view === 'exchange' && !sheetOpen()) {
+    if (X.lock === 10 && X.amt > 0) { xMascot.turnKnob(-120, 0.6); say('x', 'lock_low'); }
+    if (X.lock === 60 && S.talk === 2) say('x', 'lock_new');
+  }
+  if (sec % 15 === 0) {
     ['usdt', 'ton', 'btc', 'eth'].forEach((k) => (COINS[k].rate *= 1 + (Math.random() - 0.48) * 0.003));
     renderBoard(true);
     renderHome();
     if (S.view === 'exchange') renderX(false);
   }
+  idleTick();
 }, 1000);
 
 /* ───────── boot ───────── */
-try { tg && tg.ready(); tg && tg.expand(); } catch (e) {}
-let startHidden = false;
-try { startHidden = localStorage.getItem('menyala-hide') === '1'; } catch (e) {}
+try { tg && tg.ready(); tg && tg.expand(); tg && tg.setHeaderColor && tg.setHeaderColor('#05070C'); tg && tg.setBackgroundColor && tg.setBackgroundColor('#05070C'); } catch (e) {}
+let startHidden = false, startTalk = 1;
+try {
+  startHidden = localStorage.getItem('menyala-hide') === '1';
+  const t = localStorage.getItem('menyala-talk');
+  if (t === '0' || t === '1' || t === '2') startTalk = +t;
+} catch (e) {}
 if (startHidden) { $('#tgHide').classList.add('on'); $('#tgHide').setAttribute('aria-checked', 'true'); }
+setTalk(startTalk, true);
+renderMarq();
 renderHome();
 renderBoard();
 renderX();
 renderLock();
 renderHistory(false);
+renderRef();
+renderFun(false);
 if (startHidden) setHidden(true, false);
 
 const hash = location.hash.slice(1);
@@ -2219,7 +3195,7 @@ else {
   gsap.from('#bal', { scale: 0.95, opacity: 0, duration: 0.7, ease: 'expo.out' });
   gsap.from(['.actions', '#assets', '.board', '.promo'], { y: 22, opacity: 0, duration: 0.6, stagger: 0.07, ease: 'power3.out', delay: 0.15, clearProps: 'transform,opacity' });
   mascot.enter();
-  setTimeout(() => say(startHidden ? 'Всё закрыто' : 'Всё под замком'), 1000);
+  setTimeout(() => say('home', startHidden ? 'idle_hidden' : greetCat()), 1100);
 }
 gsap.from('.tabbar-in', { y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', delay: 0.25 });
 
